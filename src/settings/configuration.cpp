@@ -3,7 +3,6 @@
 
 #include <settings/configuration.h>
 namespace peachnx::settings {
-    std::unique_ptr<Options> options;
 
     namespace system_default {
         auto GetInstallDirectory() {

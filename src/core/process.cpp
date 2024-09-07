@@ -6,10 +6,11 @@
 namespace peachnx::core {
     Process::Process(const bool useTemp) {
         std::filesystem::path workDir;
-        if (useTemp)
+        if (useTemp) {
             workDir = std::filesystem::temp_directory_path();
-        else
-            workDir = settings::options->installedDirectory->Get();
+        } else {
+            workDir = settings::options->installedDirectory.GetValue();
+        }
 
         std::print("Process started with PID {} on CPU {}\n", getpid(), sched_getcpu());
         assets = AssetsBacking(workDir);
@@ -25,5 +26,6 @@ namespace peachnx::core {
             return;
         }
         emuWindow = std::move(window);
+        emuWindow->Show();
     }
 }

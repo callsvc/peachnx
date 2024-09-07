@@ -4,18 +4,16 @@
 #include <settings/options.h>
 namespace peachnx::settings {
 
-    template <typename T>
-    using OptOption = std::optional<Option<T>>;
     struct Options {
         Options();
-        OptOption<std::string> installedDirectory;
-        OptOption<i32> lastX;
-        OptOption<i32> lastY;
-        OptOption<i32> width;
-        OptOption<i32> height;
+        Option<std::string> installedDirectory;
+        Option<i32> lastX;
+        Option<i32> lastY;
+        Option<i32> width;
+        Option<i32> height;
 
-        OptOption<SurfaceBackend> surfaceBackend;
+        Option<SurfaceBackend> surfaceBackend;
     };
 
-    extern std::unique_ptr<Options> options;
+    inline std::unique_ptr<Options> options;
 }

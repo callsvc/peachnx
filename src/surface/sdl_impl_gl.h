@@ -6,5 +6,7 @@ namespace peachnx::surface {
     public:
         SdlImplOpenGl();
         ~SdlImplOpenGl() override;
+    private:
+        SDL_GLContext* context{nullptr};
     };
 }

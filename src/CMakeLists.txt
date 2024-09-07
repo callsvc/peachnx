@@ -5,7 +5,7 @@ include_directories(.)
 target_sources(pnx_lib PUBLIC
     settings/configuration.cpp
     settings/configuration.h
-        settings/options_type.h
+    settings/options_type.h
     settings/options.h
     core/process.cpp
     core/process.h

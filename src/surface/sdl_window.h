@@ -1,15 +1,16 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-
 namespace peachnx::surface {
-
     class SdlWindow {
     public:
         SdlWindow();
         virtual ~SdlWindow();
+        void Show();
     protected:
-        SDL_Window* surface{nullptr};
-        bool isInitialized{true};
+
+        SDL_Window* sdlWindow{nullptr};
+        bool initialized{true};
+        bool isHide{true};
     };
 }

@@ -11,5 +11,9 @@ namespace peachnx::surface {
     SdlWindow::~SdlWindow() {
         SDL_Quit();
     }
+    void SdlWindow::Show() {
+        SDL_ShowWindow(sdlWindow);
+        isHide = !isHide;
+    }
 
 }

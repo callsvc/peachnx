@@ -6,6 +6,7 @@ namespace peachnx::settings {
 
     class MetaOption {
     public:
+        MetaOption() = default;
         explicit MetaOption(const std::string& name) : label(name) {
 
         }
@@ -21,6 +22,7 @@ namespace peachnx::settings {
     template <typename T>
     class Option : public MetaOption {
     public:
+        Option() = default;
         explicit Option(const std::string& name, const T& defaultValue) :
             MetaOption(name), value(defaultValue) {}
         ~Option() override = default;
@@ -40,7 +42,7 @@ namespace peachnx::settings {
             return useGlobal;
         }
 
-        virtual const T& Get() const {
+        virtual const T& GetValue() const {
             return value;
         }
     protected:
@@ -55,8 +57,8 @@ namespace peachnx::settings {
         explicit MaskableOption(const std::string& name, const T& defaultValue) : Option<T>(name, defaultValue) {}
         ~MaskableOption() override = default;
 
-        const T& Get() const override {
-            if (Option<T>::IsGlobal())
+        const T& GetValue() const override {
+            if (this->IsGlobal())
                 return this->self;
             return local;
         }

@@ -1,4 +1,5 @@
 #include <memory>
+#include <thread>
 
 #include <core/process.h>
 #include <settings/configuration.h>
@@ -9,7 +10,7 @@ i32 main() {
     const auto process{std::make_unique<core::Process>()};
 
     auto emuSurface = [&] -> std::unique_ptr<surface::SdlWindow> {
-        const auto backend{settings::options->surfaceBackend->Get()};
+        const auto backend{settings::options->surfaceBackend.GetValue()};
 
         if (backend == settings::SurfaceBackend::OpenGl) {
             return std::make_unique<surface::SdlImplOpenGl>();
@@ -20,4 +21,6 @@ i32 main() {
 
     if (process->IsRunning())
         throw std::runtime_error("We shouldn't be running");
+
+    std::this_thread::sleep_for(std::chrono::minutes(10));
 }
