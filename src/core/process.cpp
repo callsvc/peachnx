@@ -1,0 +1,29 @@
+#include <print>
+#include <unistd.h>
+
+#include <core/process.h>
+#include <settings/configuration.h>
+namespace peachnx::core {
+    Process::Process(const bool useTemp) {
+        std::filesystem::path workDir;
+        if (useTemp)
+            workDir = std::filesystem::temp_directory_path();
+        else
+            workDir = settings::options->installedDirectory->Get();
+
+        std::print("Process started with PID {} on CPU {}\n", getpid(), sched_getcpu());
+        assets = AssetsBacking(workDir);
+    }
+    bool Process::IsRunning() const {
+        return running.load(std::memory_order::relaxed);
+    }
+
+    void Process::MakeSwitchContext(std::unique_ptr<surface::SdlWindow>&& window) {
+        std::lock_guard lock(processLock);
+
+        if (IsRunning()) {
+            return;
+        }
+        emuWindow = std::move(window);
+    }
+}
