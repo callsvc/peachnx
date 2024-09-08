@@ -15,6 +15,7 @@ target_sources(pnx_lib PUBLIC
     loader/application.h
     loader/submission_package.cpp
     loader/submission_package.h
+    disk/virtual_types.h
     disk/virtual_file.cpp
     disk/virtual_file.h
     disk/regular_file.cpp
@@ -28,7 +29,7 @@ target_sources(pnx_lib PUBLIC
     types.h
 )
 
-target_link_libraries(pnx_lib PUBLIC SDL2::SDL2)
+target_link_libraries(pnx_lib PUBLIC SDL2::SDL2 OpenGL::GL)
 
 if(USE_QT_UI)
     add_subdirectory(peachnx)

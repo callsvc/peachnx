@@ -12,5 +12,8 @@ namespace peachnx::surface {
         SDL_Window* sdlWindow{nullptr};
         bool initialized{true};
         bool isHide{true};
+    private:
+
+        virtual bool CheckForRequiredExtensions() = 0;
     };
 }
