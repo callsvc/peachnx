@@ -3,7 +3,6 @@
 #include <cstdint>
 
 namespace peachnx {
-
     constexpr auto majorVersion{0};
     constexpr auto minorVersion{1};
     constexpr auto patchVersion{0};

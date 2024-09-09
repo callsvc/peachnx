@@ -17,10 +17,14 @@ i32 main() {
         }
         return std::make_unique<surface::SdlImplOpenGl>();
     }();
-    process->MakeSwitchContext(std::move(emuSurface));
+
+    constexpr service::am::AppletParameters gameParams{
+        .id = service::am::AppletKind::Application
+    };
+    process->MakeSwitchContext(std::move(emuSurface), "", gameParams);
 
     if (process->IsRunning())
         throw std::runtime_error("We shouldn't be running");
 
-    std::this_thread::sleep_for(std::chrono::minutes(10));
+    std::this_thread::sleep_for(std::chrono::seconds(10));
 }

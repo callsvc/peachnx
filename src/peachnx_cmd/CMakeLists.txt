@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 
-add_executable(peachnx)
-target_sources(peachnx PRIVATE
+add_executable(pnx)
+target_sources(pnx PRIVATE
     main.cpp
 )
-target_link_libraries(peachnx PRIVATE pnx_lib)
+target_link_libraries(pnx PRIVATE pnx_lib)

@@ -26,13 +26,12 @@ target_sources(pnx_lib PUBLIC
     surface/sdl_window.h
     surface/sdl_impl_gl.cpp
     surface/sdl_impl_gl.h
+    service/am/am_types.h
+    service/am/manager.h
     types.h
 )
 
 target_link_libraries(pnx_lib PUBLIC SDL2::SDL2 OpenGL::GL)
 
-if(USE_QT_UI)
-    add_subdirectory(peachnx)
-else()
-    add_subdirectory(peachnx_cmd)
-endif()
+add_subdirectory(peachnx)
+add_subdirectory(peachnx_cmd)

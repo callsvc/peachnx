@@ -17,10 +17,10 @@ namespace peachnx::settings {
     Options::Options() {
         installedDirectory = Option{"installed-directory", system_default::GetInstallDirectory()};
 
-        lastX = Option{"last-x", 640};
-        lastY = Option{"last-y", 640};
-        width = Option{"width", system_default::GetWindowPos()};
-        height = Option{"height", system_default::GetWindowPos()};
+        lastX = Option{"last-x", system_default::GetWindowPos()};
+        lastY = Option{"last-y", system_default::GetWindowPos()};
+        width = Option{"width", 640};
+        height = Option{"height", 640};
 
         surfaceBackend = Option{"surface-backend", SurfaceBackend::OpenGl};
     }

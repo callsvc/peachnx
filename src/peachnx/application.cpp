@@ -7,8 +7,7 @@ int main(int argc, char** argv) {
     pnx_set::options = std::make_unique<pnx_set::Options>();
 
     QApplication app(argc, argv);
-    QWidget window{};
-    peachnx::MainWindow main(&window);
+    peachnx::MainWindow main{};
 
-    return app.exec();
+    return QApplication::exec();
 }
