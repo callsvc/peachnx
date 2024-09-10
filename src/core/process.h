@@ -4,7 +4,7 @@
 #include <core/assets_backing.h>
 #include <surface/sdl_impl_gl.h>
 
-#include <service/am/manager.h>
+#include <service/am/applet_manager.h>
 namespace peachnx::core {
     class Process {
     public:

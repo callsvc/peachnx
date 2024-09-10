@@ -3,6 +3,9 @@ cmake_minimum_required(VERSION 3.21)
 add_library(pnx_lib STATIC)
 include_directories(.)
 target_sources(pnx_lib PUBLIC
+    common/virtual_allocator.cpp
+    common/virtual_allocator.h
+    common/common_types.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h
@@ -27,11 +30,15 @@ target_sources(pnx_lib PUBLIC
     surface/sdl_impl_gl.cpp
     surface/sdl_impl_gl.h
     service/am/am_types.h
-    service/am/manager.h
+    service/am/applet_manager.h
+    kernel/kernel.cpp
+    kernel/kernel.h
+    kernel/async.cpp
+    kernel/async.h
     types.h
 )
 
-target_link_libraries(pnx_lib PUBLIC SDL2::SDL2 OpenGL::GL)
+target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL)
 
 add_subdirectory(peachnx)
 add_subdirectory(peachnx_cmd)
