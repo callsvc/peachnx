@@ -9,6 +9,6 @@ namespace peachnx::loader {
     }
 
     bool NSP::IsValidNsp() const {
-        return pfs->pfs0.entry;
+        return pfs->pfs0.entryCount != 0;
     }
 }

@@ -9,7 +9,7 @@ namespace peachnx::disk {
         u64 GetSize();
         void RequestADifferentFileMode(DiskAccess access);
     private:
-        void ReadImpl(const std::span<u8>& output, u64 offset) override;
+        u64 ReadImpl(const std::span<u8>& output, u64 offset) override;
 
         i32 descriptor;
     };

@@ -28,6 +28,8 @@ target_sources(pnx_lib PUBLIC
     disk/regular_file.h
     disk/realfs.cpp
     disk/realfs.h
+    disk/offset_file.cpp
+    disk/offset_file.h
     disk/partition_filesystem.cpp
     disk/partition_filesystem.h
     surface/sdl_window.cpp

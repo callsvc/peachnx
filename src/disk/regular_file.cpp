@@ -28,7 +28,7 @@ namespace peachnx::disk {
         return size;
     }
 
-    void RegularFile::ReadImpl(const std::span<u8>& output, const u64 offset) {
+    u64 RegularFile::ReadImpl(const std::span<u8>& output, const u64 offset) {
         if (privilege == DiskAccess::Write) {
             throw std::runtime_error("Attempt to read from a write-only file");
         }
@@ -44,6 +44,8 @@ namespace peachnx::disk {
 
             blkOffset += result;
         } while (blkOffset < output.size());
+
+        return blkOffset;
     }
 
     void RegularFile::RequestADifferentFileMode(const DiskAccess access) {

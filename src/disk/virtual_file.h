@@ -12,7 +12,8 @@ namespace peachnx::disk {
     };
     class VirtualFile {
     public:
-        explicit VirtualFile(const std::filesystem::path& filename = {}, DiskAccess diskAccess = DiskAccess::Read, bool isPresent = false);
+        explicit VirtualFile(const std::filesystem::path& filename = {},
+            DiskAccess access = DiskAccess::Read, bool tangible = false, u64 virtOff = 0, u64 virtSize = 0);
         virtual ~VirtualFile() = default;
 
         template <typename T> requires (std::is_trivially_copyable_v<T>)
@@ -20,6 +21,9 @@ namespace peachnx::disk {
             T copyable;
             ReadImpl({reinterpret_cast<u8*>(&copyable), sizeof(copyable)}, wr);
             return copyable;
+        }
+        u64 Read(const std::span<u8> bytes, const u64 offset) {
+            return ReadImpl(bytes, offset);
         }
         std::vector<u8> GetBytes(u64 size, u64 offset = {});
 
@@ -34,8 +38,8 @@ namespace peachnx::disk {
             return size;
         }
     protected:
-        virtual void ReadImpl(const std::span<u8>& output, u64 offset) = 0;
-        virtual void GetBytesImpl(std::vector<u8>& output, u64 offset);
+        virtual u64 ReadImpl(const std::span<u8>& output, u64 offset) = 0;
+        virtual u64 GetBytesImpl(std::vector<u8>& output, u64 offset);
 
         u64 size{};
         std::streamoff rd{}, wr{};
