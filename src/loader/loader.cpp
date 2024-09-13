@@ -19,7 +19,7 @@ namespace peachnx::loader {
         const auto typeIndex{static_cast<u32>(type)};
         if (type == ApplicationType::Unrecognized || typeIndex > appTypes.size())
             return "Unknown";
-        return appTypes[typeIndex];
+        return appTypes[typeIndex - 1];
     }
 
     ApplicationType IdentifyAppType(disk::VirtFilePtr& app) {

@@ -39,8 +39,7 @@ namespace peachnx::core {
 
     void Application::LoadApplication(disk::VirtFilePtr& mainFile, const service::am::AppletParameters& params) {
         loader::LoaderExtra parameters {
-            params.programId,
-            params.programIndex
+            params.programId, params.programIndex
         };
         appLoader = GetLoader(mainFile, parameters);
     }

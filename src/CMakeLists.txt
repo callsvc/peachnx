@@ -19,6 +19,8 @@ target_sources(pnx_lib PUBLIC
     loader/loader.h
     loader/submission_package.cpp
     loader/submission_package.h
+    loader/nsp.cpp
+    loader/nsp.h
     disk/virtual_types.h
     disk/virtual_file.cpp
     disk/virtual_file.h
@@ -26,6 +28,8 @@ target_sources(pnx_lib PUBLIC
     disk/regular_file.h
     disk/realfs.cpp
     disk/realfs.h
+    disk/partition_filesystem.cpp
+    disk/partition_filesystem.h
     surface/sdl_window.cpp
     surface/sdl_window.h
     surface/sdl_impl_gl.cpp

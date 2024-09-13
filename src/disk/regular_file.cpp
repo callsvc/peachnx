@@ -38,7 +38,7 @@ namespace peachnx::disk {
             const u64 readStride{output.size() < 4096 ? output.size() : 4096};
             const auto readOffset{offset + blkOffset};
 
-            const auto result{pread64(descriptor, &output[blkOffset] , readStride, readOffset)};
+            const auto result{pread64(descriptor, &output[blkOffset], readStride, readOffset)};
             if (result < 0)
                 throw std::runtime_error("Could not read from file");
 

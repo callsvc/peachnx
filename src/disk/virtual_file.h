@@ -1,5 +1,6 @@
 #pragma once
 #include <filesystem>
+#include <vector>
 
 #include <types.h>
 namespace peachnx::disk {
@@ -20,6 +21,8 @@ namespace peachnx::disk {
             ReadImpl({reinterpret_cast<u8*>(&copyable), sizeof(copyable)}, wr);
             return copyable;
         }
+        std::vector<u8> GetBytes(u64 size, u64 offset = {});
+
         [[nodiscard]] auto GetFilePrivilege() const {
             return privilege;
         }
@@ -27,9 +30,12 @@ namespace peachnx::disk {
             return diskPath;
         }
 
-        [[nodiscard]] virtual u64 GetSize() const;
+        [[nodiscard]] virtual u64 GetSize() const {
+            return size;
+        }
     protected:
         virtual void ReadImpl(const std::span<u8>& output, u64 offset) = 0;
+        virtual void GetBytesImpl(std::vector<u8>& output, u64 offset);
 
         u64 size{};
         std::streamoff rd{}, wr{};
