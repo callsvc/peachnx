@@ -13,8 +13,8 @@ namespace peachnx::kernel {
             stackRewind(stackSize) {
 
         }
-        HugeVector<u8> stack;
-        HugeVector<u8> stackRewind;
+        PageVector<u8> stack;
+        PageVector<u8> stackRewind;
 
         std::function<void()> entryPoint;
     };

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <disk/virtual_file.h>
-
 namespace peachnx::disk {
     class RegularFile final : public VirtualFile {
     public:

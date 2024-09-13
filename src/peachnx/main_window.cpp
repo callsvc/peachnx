@@ -5,7 +5,7 @@
 namespace peachnx {
     MainWindow::MainWindow(QWidget* parent) :
         QMainWindow(parent),
-        process(std::make_unique<core::Process>()) {
+        peachnx(std::make_unique<core::Application>()) {
 
         resize(640, 480);
         show();

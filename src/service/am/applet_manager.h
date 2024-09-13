@@ -5,5 +5,7 @@ namespace peachnx::service::am {
     struct AppletParameters {
         ApplicationId programId;
         AppletKind id;
+
+        u64 programIndex;
     };
 }

@@ -23,6 +23,9 @@ namespace peachnx::disk {
         [[nodiscard]] auto GetFilePrivilege() const {
             return privilege;
         }
+        [[nodiscard]] auto GetDiskPath() const {
+            return diskPath;
+        }
 
         [[nodiscard]] virtual u64 GetSize() const;
     protected:
@@ -35,6 +38,6 @@ namespace peachnx::disk {
         bool flushed{};
 
         DiskAccess privilege;
-        std::filesystem::path diskName;
+        std::filesystem::path diskPath;
     };
 }

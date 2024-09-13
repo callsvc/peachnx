@@ -21,5 +21,5 @@ namespace peachnx {
     };
 
     template <typename T>
-    using HugeVector = std::vector<T, MappableAllocator<T>>;
+    using PageVector = std::vector<T, MappableAllocator<T>>;
 }

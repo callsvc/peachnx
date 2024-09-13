@@ -21,7 +21,7 @@ namespace peachnx::disk {
     }
     u64 RegularFile::GetSize() {
         struct stat64 status{};
-        if (stat64(diskName.c_str(), &status)) {
+        if (stat64(diskPath.c_str(), &status)) {
             throw std::runtime_error("The file exists but is not accessible");
         }
         size = status.st_size;

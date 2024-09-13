@@ -11,6 +11,10 @@ namespace peachnx::loader {
         return magic;
     }
 
+    SubmissionPackage::SubmissionPackage([[maybe_unused]] const disk::VirtFilePtr& main, [[maybe_unused]] const LoaderExtra& loaderParams) {
+        (void)main;
+        (void)loaderParams;
+    }
     ApplicationType SubmissionPackage::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
         if (u32 magic{}; probFile->GetSize() > sizeof(magic)) {
             magic = probFile->Read<u32>();

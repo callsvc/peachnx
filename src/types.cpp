@@ -4,5 +4,5 @@
 namespace peachnx {
     std::string GetTitleWindow() {
         return std::format("Peachnx {}.{}.{}", majorVersion, minorVersion, patchVersion);
-    };
+    }
 }

@@ -9,12 +9,14 @@ target_sources(pnx_lib PUBLIC
     settings/configuration.h
     settings/options_type.h
     settings/options.h
-    core/process.cpp
-    core/process.h
+    service/process.cpp
+    service/process.h
+    core/application.cpp
+    core/application.h
     core/assets_backing.cpp
     core/assets_backing.h
-    loader/application.cpp
-    loader/application.h
+    loader/loader.cpp
+    loader/loader.h
     loader/submission_package.cpp
     loader/submission_package.h
     disk/virtual_types.h
@@ -40,7 +42,7 @@ target_sources(pnx_lib PUBLIC
     types.h
 )
 
-target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL Boost::context)
+target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL Boost::context Boost::program_options)
 
 add_subdirectory(peachnx)
 add_subdirectory(peachnx_cmd)

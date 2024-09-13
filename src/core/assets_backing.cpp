@@ -12,9 +12,9 @@ namespace peachnx::core {
         VerifyDirectory(games);
         VerifyDirectory(keys);
     }
-    disk::VirtFilePtr AssetsBacking::GetMainNcaFromPath(const std::string& gamePath) const {
+    disk::VirtFilePtr AssetsBacking::GetMainFileFromPath(const std::string& gamePath) const {
         const disk::Path userPath{gamePath};
-        if (exists(userPath))
+        if (!exists(userPath))
             throw std::runtime_error("Path does not exist");
 
         if (is_directory(userPath)) {
