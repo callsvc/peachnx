@@ -1,18 +1,31 @@
 #pragma once
 #include <functional>
+#include <memory>
 
-#include <common/common_types.h>
+#include <container.h>
+#include <boost/context/detail/fcontext.hpp>
 namespace peachnx::kernel {
     constexpr auto defaultStackSize{512 * 1024};
+
+    struct AsyncContext {
+        explicit AsyncContext(const u64 stackSize) :
+            stack(stackSize),
+            stackRewind(stackSize) {
+
+        }
+        HugeVector<u8> stack;
+        HugeVector<u8> stackRewind;
+
+        std::function<void()> entryPoint;
+    };
+    namespace gt = boost::context::detail;
+
     class Async {
     public:
-        Async() :
-            stack(defaultStackSize),
-            stackRewind(defaultStackSize) {}
+        Async() = default;
+        explicit Async(std::function<void()>&& function);
 
-        common::HugeVector<u8> stack;
-        common::HugeVector<u8> stackRewind;
-    private:
-        std::function<void()> entryPoint;
+        static void TrappedEntryPoint(gt::transfer_t context);
+        std::unique_ptr<AsyncContext> container;
     };
 }

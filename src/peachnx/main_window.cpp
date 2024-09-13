@@ -9,7 +9,8 @@ namespace peachnx {
 
         resize(640, 480);
         show();
-        setWindowTitle(QApplication::translate("toplevel", titleWindow.c_str()));
+        const auto title{GetTitleWindow()};
+        setWindowTitle(QApplication::translate("toplevel", title.c_str()));
     }
     void MainWindow::closeEvent(QCloseEvent* event) {
         std::print("The cleanup code should be here\n");

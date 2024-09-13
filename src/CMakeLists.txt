@@ -3,9 +3,8 @@ cmake_minimum_required(VERSION 3.21)
 add_library(pnx_lib STATIC)
 include_directories(.)
 target_sources(pnx_lib PUBLIC
-    common/virtual_allocator.cpp
-    common/virtual_allocator.h
-    common/common_types.h
+    virtual_allocator.cpp
+    virtual_allocator.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h
@@ -35,10 +34,13 @@ target_sources(pnx_lib PUBLIC
     kernel/kernel.h
     kernel/async.cpp
     kernel/async.h
+    kernel/kernel_types.h
+    container.h
+    types.cpp
     types.h
 )
 
-target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL)
+target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL Boost::context)
 
 add_subdirectory(peachnx)
 add_subdirectory(peachnx_cmd)

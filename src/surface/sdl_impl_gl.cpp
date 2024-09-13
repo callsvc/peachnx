@@ -17,7 +17,8 @@ namespace peachnx::surface {
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
 
-        sdlWindow = SDL_CreateWindow(&titleWindow[0], options->lastX.GetValue(), options->lastY.GetValue(), options->width.GetValue(), options->height.GetValue(), windowFlags);
+        const auto title{GetTitleWindow()};
+        sdlWindow = SDL_CreateWindow(&title[0], options->lastX.GetValue(), options->lastY.GetValue(), options->width.GetValue(), options->height.GetValue(), windowFlags);
         if (!sdlWindow) {
             throw std::runtime_error("Failed to create an SDL window");
         }

@@ -5,6 +5,7 @@
 #include <surface/sdl_impl_gl.h>
 
 #include <service/am/applet_manager.h>
+#include <kernel/kernel.h>
 namespace peachnx::core {
     class Process {
     public:
@@ -15,6 +16,7 @@ namespace peachnx::core {
             const std::string& program, const service::am::AppletParameters& params);
     private:
         AssetsBacking assets;
+        kernel::Kernel heart;
 
         std::mutex processLock;
         std::atomic<bool> running;

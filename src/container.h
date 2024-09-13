@@ -1,7 +1,9 @@
 #pragma once
 
-#include <common/virtual_allocator.h>
-namespace peachnx::common {
+#include <vector>
+#include <virtual_allocator.h>
+
+namespace peachnx {
     template <typename T>
     struct MappableAllocator {
         MappableAllocator() = default;
