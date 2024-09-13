@@ -23,11 +23,10 @@ namespace peachnx::core {
     }
 
     void Process::MakeSwitchContext(std::unique_ptr<surface::SdlWindow>&& window,
-            const std::string& program, const service::am::AppletParameters& params) {
-        (void)program;
-        (void)params;
-
-        std::lock_guard lock(processLock);
+        const std::string& program,
+        [[maybe_unused]] const service::am::AppletParameters& params) {
+        std::lock_guard lock{processLock};
+        auto mainFile{assets.GetMainNcaFromPath(program)};
 
         if (IsRunning()) {
             return;

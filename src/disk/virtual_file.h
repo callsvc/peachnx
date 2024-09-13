@@ -20,11 +20,11 @@ namespace peachnx::disk {
             ReadImpl({reinterpret_cast<u8*>(&copyable), sizeof(copyable)}, wr);
             return copyable;
         }
-        auto GetFilePrivilege() const {
+        [[nodiscard]] auto GetFilePrivilege() const {
             return privilege;
         }
 
-        virtual u64 GetSize() const;
+        [[nodiscard]] virtual u64 GetSize() const;
     protected:
         virtual void ReadImpl(const std::span<u8>& output, u64 offset) = 0;
 

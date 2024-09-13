@@ -12,6 +12,8 @@ namespace peachnx::core {
         std::filesystem::path keys;
 
         std::shared_ptr<disk::RealFs> backing;
+
+        [[nodiscard]] disk::VirtFilePtr GetMainNcaFromPath(const std::string& gamePath) const;
     private:
         static void VerifyDirectory(const std::filesystem::path& cave);
     };
