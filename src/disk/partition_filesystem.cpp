@@ -1,4 +1,5 @@
 #include <ranges>
+#include <print>
 
 #include <disk/partition_filesystem.h>
 namespace peachnx::disk {
@@ -20,34 +21,35 @@ namespace peachnx::disk {
 #pragma pack(pop)
 
     PartitionFilesystem::PartitionFilesystem(const VirtFilePtr& pfs) : isHfs(), checked() {
-        pfs0 = pfs->Read<PfsHeader>();
+        header = pfs->Read<PfsHeader>();
 
-        if (pfs0.magic == MakeMagic<u32>("HFS0"))
+        if (header.magic == MakeMagic<u32>("HFS0"))
             isHfs = checked = true;
-        else if (pfs0.magic == MakeMagic<u32>("PFS0"))
+        else if (header.magic == MakeMagic<u32>("PFS0"))
             checked = true;
-
-        if (!checked) {
-            throw std::invalid_argument("Invalid partition filesystem");
-        }
 
         const u64 entrySize{isHfs ? sizeof(HfsEntry) : sizeof(PfsEntry)};
         // Size of the region that does not represent any specific file content (Metadata region)
-        const u64 metadata{sizeof(PfsHeader) + (pfs0.entryCount * entrySize) + pfs0.stringTableSize};
-        if (!metadata || metadata > std::numeric_limits<u32>::max()) {
+        const u64 metaSize{sizeof(PfsHeader) + (header.entryCount * entrySize) + header.stringTableSize};
+        if (!metaSize || metaSize > std::numeric_limits<u32>::max()) {
+            if (checked)
+                return;
             throw std::runtime_error("Possible data corruption detected");
         }
 
-        auto pfsMetadata{pfs->GetBytes(metadata)};
-        constexpr auto entriesOffset{sizeof(pfs0)};
-        const auto stringTableOffset{entriesOffset + pfs0.entryCount * entrySize};
-        const auto contentOffset{stringTableOffset + pfs0.stringTableSize};
+        auto content{pfs->GetBytes(metaSize)};
+        constexpr auto entriesOffset{sizeof(header)};
+        const auto stringTableOffset{entriesOffset + header.entryCount * entrySize};
+        const auto contentOffset{stringTableOffset + header.stringTableSize};
 
-        for (u32 entry{}; entry < pfs0.entryCount; entry++) {
+        std::print("Entries in this PFS\n");
+        for (u32 entry{}; entry < header.entryCount; entry++) {
             PfsEntryRecord record;
-            std::memcpy(&record, &pfsMetadata[entriesOffset + (entry * entrySize)], sizeof(record));
+            std::memcpy(&record, &content[entriesOffset + entry * entrySize], sizeof(record));
 
-            std::string filename{reinterpret_cast<char*>(&pfsMetadata[stringTableOffset + record.strOff])};
+            std::string filename{reinterpret_cast<char*>(&content[stringTableOffset + record.strOff])};
+            std::print("New file named {} found\n", filename);
+
             auto reference{std::make_shared<OffsetFile>(pfs, contentOffset + record.offset, record.size, filename)};
 
             pfsFiles.emplace(filename, reference);

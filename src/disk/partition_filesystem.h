@@ -22,7 +22,7 @@ namespace peachnx::disk {
     public:
         explicit PartitionFilesystem(const VirtFilePtr& pfs);
 
-        PfsHeader pfs0;
+        PfsHeader header;
         bool isHfs;
         bool checked;
     private:
