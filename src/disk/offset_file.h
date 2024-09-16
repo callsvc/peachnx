@@ -2,7 +2,7 @@
 #include <disk/virtual_file.h>
 
 namespace peachnx::disk {
-    class OffsetFile final : VirtualFile {
+    class OffsetFile final : public VirtualFile {
     public:
         explicit OffsetFile(const std::shared_ptr<VirtualFile>& parent, u64 offset, u64 size, const std::filesystem::path& filename);
     private:

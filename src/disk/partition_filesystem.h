@@ -22,6 +22,12 @@ namespace peachnx::disk {
     public:
         explicit PartitionFilesystem(const VirtFilePtr& pfs);
 
+        auto& GetAllFiles() {
+            if (header.entryCount < pfsFiles.size()) {
+            }
+            return pfsFiles;
+        }
+
         PfsHeader header;
         bool isHfs;
         bool checked;

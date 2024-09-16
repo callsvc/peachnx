@@ -3,8 +3,10 @@ cmake_minimum_required(VERSION 3.21)
 add_library(pnx_lib STATIC)
 include_directories(.)
 target_sources(pnx_lib PUBLIC
-    virtual_allocator.cpp
-    virtual_allocator.h
+    crypto/ticket.cpp
+    crypto/ticket.h
+    crypto/keysdb.cpp
+    crypto/keysdb.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h
@@ -43,6 +45,8 @@ target_sources(pnx_lib PUBLIC
     kernel/async.cpp
     kernel/async.h
     kernel/kernel_types.h
+    virtual_allocator.cpp
+    virtual_allocator.h
     container.h
     types.cpp
     types.h

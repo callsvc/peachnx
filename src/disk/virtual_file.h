@@ -17,9 +17,9 @@ namespace peachnx::disk {
         virtual ~VirtualFile() = default;
 
         template <typename T> requires (std::is_trivially_copyable_v<T>)
-        T Read() {
+        T Read(const u64 offset = 0) {
             T copyable;
-            ReadImpl({reinterpret_cast<u8*>(&copyable), sizeof(copyable)}, wr);
+            ReadImpl({reinterpret_cast<u8*>(&copyable), sizeof(copyable)}, offset);
             return copyable;
         }
         u64 Read(const std::span<u8> bytes, const u64 offset) {
