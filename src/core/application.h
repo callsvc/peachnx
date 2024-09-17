@@ -7,6 +7,7 @@
 #include <loader/loader.h>
 #include <service/am/applet_manager.h>
 #include <kernel/kernel.h>
+#include <crypto/keysdb.h>
 namespace peachnx::core {
     class Application {
     public:
@@ -18,7 +19,8 @@ namespace peachnx::core {
     private:
         void LoadApplication(disk::VirtFilePtr& mainFile, const service::am::AppletParameters& params);
         AssetsBacking assets;
-        kernel::Kernel heart;
+        kernel::Kernel kernel;
+        crypto::KeysDb keys;
 
         std::mutex processLock;
         std::atomic<bool> running;

@@ -1,7 +1,8 @@
 #pragma once
 
 #include <disk/virtual_types.h>
-#include <crypto/keysdb.h>
+#include <crypto/keys_types.h>
+
 namespace peachnx::crypto {
     struct Ticket {
         // https://switchbrew.org/wiki/Ticket

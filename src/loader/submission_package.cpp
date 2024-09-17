@@ -1,8 +1,8 @@
 
 #include <loader/submission_package.h>
 namespace peachnx::loader {
-    SubmissionPackage::SubmissionPackage(disk::VirtFilePtr& main, [[maybe_unused]] const LoaderExtra& pkgParams) :
-        nsp(std::make_unique<NSP>(main)) {
+    SubmissionPackage::SubmissionPackage(crypto::KeysDb& keysMgr, disk::VirtFilePtr& main, const LoaderExtra& params) :
+        nsp(std::make_unique<NSP>(keysMgr, main, params.programId, params.programIndex)) {
     }
     ApplicationType SubmissionPackage::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
         const NSP package(probFile);

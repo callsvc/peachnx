@@ -2,10 +2,12 @@
 
 #include <disk/virtual_types.h>
 #include <disk/partition_filesystem.h>
+#include <crypto/keysdb.h>
 namespace peachnx::loader {
     class NSP {
     public:
-        explicit NSP(const disk::VirtFilePtr& nsp, u64 titleId = 0, u64 programIndex = 0);
+        explicit NSP(crypto::KeysDb& keysMgr, const disk::VirtFilePtr& nsp, u64 titleId, u64 programIndex);
+        explicit NSP(const disk::VirtFilePtr& nsp);
 
         bool IsValidNsp() const;
         std::unique_ptr<disk::PartitionFilesystem> pfs;

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <disk/virtual_types.h>
+#include <crypto/keysdb.h>
 namespace peachnx::loader {
     struct LoaderExtra {
         u64 programId;
@@ -22,5 +23,5 @@ namespace peachnx::loader {
         static ApplicationType GetTypeFromFile(disk::VirtFilePtr& probFile);
     };
 
-    std::shared_ptr<Loader> GetLoader(disk::VirtFilePtr& mainFile, LoaderExtra& extra);
+    std::shared_ptr<Loader> GetLoader(crypto::KeysDb& keysDb, disk::VirtFilePtr& mainFile, LoaderExtra& extra);
 }

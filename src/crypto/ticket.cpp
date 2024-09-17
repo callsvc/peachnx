@@ -21,20 +21,20 @@ namespace peachnx::crypto {
         switch (signature) {
             case RSA_4096_SHA_1:
             case RSA_4096_SHA_256:
-                offset = 0x200;
+                offset = 0x240;
                 break;
             case RSA_2048_SHA_1:
             case RSA_2048_SHA_256:
-                offset = 0x100;
+                offset = 0x140;
                 break;
             case ECDSA_SHA_1:
             case ECDSA_SHA_256:
-                offset = 0x40;
+                offset = 0x80;
                 break;
             default:
                 offset = std::numeric_limits<u32>::max();
         }
-        if (offset > 0x200) {
+        if (offset > 0x240) {
             throw std::runtime_error("Invalid signature offset");
         }
 

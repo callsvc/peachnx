@@ -7,6 +7,7 @@ target_sources(pnx_lib PUBLIC
     crypto/ticket.h
     crypto/keysdb.cpp
     crypto/keysdb.h
+    crypto/keys_types.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h

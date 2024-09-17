@@ -41,7 +41,7 @@ namespace peachnx::core {
         loader::LoaderExtra parameters {
             params.programId, params.programIndex
         };
-        appLoader = GetLoader(mainFile, parameters);
+        appLoader = GetLoader(keys, mainFile, parameters);
     }
 
 }
