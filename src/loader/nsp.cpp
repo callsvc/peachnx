@@ -25,7 +25,7 @@ namespace peachnx::loader {
         ReadContent(files);
     }
     void NSP::ReadContent(const boost::unordered_map<std::string, std::shared_ptr<disk::OffsetFile>>& files) {
-        for (const auto& [filename, content] : files) {
+        for (const auto& [filename, content]: files) {
             if (!filename.ends_with(".cnmt.nca") && !filename.ends_with(".nca"))
                 continue;
 

@@ -26,5 +26,5 @@ namespace peachnx::crypto {
         std::array<u8, 0x140> unknown1;
     };
 
-    static_assert(sizeof(Ticket) == 0x2C0, "");
+    static_assert(sizeof(Ticket) == 0x2c0);
 }

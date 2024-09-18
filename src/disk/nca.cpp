@@ -1,5 +1,8 @@
-#include <disk/nca.h>
+#include <cassert>
+#include <ranges>
 
+#include <disk/nca.h>
+#include <disk/nca_filesystem_info.h>
 #include <crypto/aes_storage.h>
 namespace peachnx::disk {
     constexpr auto sdkMinimumVersion{0x000b0000};
@@ -24,5 +27,26 @@ namespace peachnx::disk {
             throw std::runtime_error("Key area not found");
         }
 
+        assert(nca->GetSize() == header.size);
+
+        // ReSharper disable once CppIfCanBeReplacedByConstexprIf
+        if (!header.rightsId.empty()) {
+            std::array<u64, 2> rightsPair;
+            std::memcpy(&rightsPair[0], &header.rightsId[0], sizeof(rightsPair));
+        }
+
+        ReadContent(nca);
+    }
+    void NCA::ReadContent(const VirtFilePtr& nca) const {
+        for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
+            [[maybe_unused]] NcaFilesystemInfo fsInfo{nca, entry};
+        }
+    }
+    u32 NCA::GetFsEntriesCount() const {
+        for (const auto& [index, antGroup] : std::views::enumerate(header.entries)) {
+            if (!antGroup.startSector && !antGroup.endSector)
+                return index;
+        }
+        return {};
     }
 }

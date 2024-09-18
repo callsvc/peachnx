@@ -35,6 +35,8 @@ target_sources(pnx_lib PUBLIC
     disk/realfs.h
     disk/nca.cpp
     disk/nca.h
+    disk/nca_filesystem_info.cpp
+    disk/nca_filesystem_info.h
     disk/offset_file.cpp
     disk/offset_file.h
     disk/partition_filesystem.cpp

@@ -1,5 +1,6 @@
 #pragma once
 #include <array>
+#include <vector>
 #include <span>
 
 #include <crypto/keys_types.h>
