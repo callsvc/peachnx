@@ -1,4 +1,5 @@
 #include <algorithm>
+#include <boost/lexical_cast.hpp>
 #include <ranges>
 
 #include <boost/algorithm/hex.hpp>
@@ -9,23 +10,14 @@
 namespace peachnx::crypto {
     template <u64 Size>
     auto StringToByteArray(const std::string_view& desired) {
-        auto toByte = [] (const auto str) -> u8 {
-            if (str >= 'A' && str <= 'F')
-                return str - 'A' + 10;
-            if (str >= 'a' && str <= 'f')
-                return str - 'a' + 10;
-
-            if (str >= '0' && str <= '9')
-                return str - '0';
-            throw std::runtime_error("Invalid string");
-        };
+        namespace bad = boost::algorithm::detail;
         std::array<u8, Size> result{};
         if (desired.size() / 2 != Size)
             return result;
         u32 resIndex{};
         for (decltype(Size) index{}; index < desired.size(); index += 2) {
-            result[resIndex] = toByte(desired[index]) << 4;
-            result[resIndex] |= toByte(desired[index + 1]) & 0xf;
+            result[resIndex] = bad::hex_char_to_int(desired[index]) << 4;
+            result[resIndex] |= bad::hex_char_to_int(desired[index + 1]) & 0xf;
             resIndex++;
         }
 
@@ -95,10 +87,13 @@ namespace peachnx::crypto {
                 }
                 return -1;
             }();
-            std::vector<u8> bytes;
-            boost::algorithm::unhex(name.substr(keyIndexName.size(), 2), std::back_inserter(bytes));
-            const KeyIndexPair pair{bytes[0], keyIndex};
-            indexedIt->second[pair] = StringToByteArray<16>(value);
+            if (keyIndex == -1)
+                return;
+            try {
+                const KeyIndexPair pair{boost::lexical_cast<u32>(name.substr(keyIndexName.size(), 2)), keyIndex};
+                indexedIt->second[pair] = StringToByteArray<16>(value);
+            } catch ([[maybe_unused]] boost::bad_lexical_cast& be) {
+            }
         }
     }
     bool KeysDb::Exists(const u64 master, const u64 index) const {
