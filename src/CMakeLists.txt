@@ -8,6 +8,8 @@ target_sources(pnx_lib PUBLIC
     crypto/keysdb.cpp
     crypto/keysdb.h
     crypto/keys_types.h
+    crypto/aes_storage.cpp
+    crypto/aes_storage.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h
@@ -31,6 +33,8 @@ target_sources(pnx_lib PUBLIC
     disk/regular_file.h
     disk/realfs.cpp
     disk/realfs.h
+    disk/nca.cpp
+    disk/nca.h
     disk/offset_file.cpp
     disk/offset_file.h
     disk/partition_filesystem.cpp
@@ -53,7 +57,7 @@ target_sources(pnx_lib PUBLIC
     types.h
 )
 
-target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL Boost::context Boost::program_options)
+target_link_libraries(pnx_lib PUBLIC SDL2 OpenGL::GL Boost::context Boost::program_options mbedcrypto)
 
 add_subdirectory(peachnx)
 add_subdirectory(peachnx_cmd)

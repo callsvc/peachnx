@@ -4,7 +4,7 @@
 namespace peachnx::disk {
     class RegularFile final : public VirtualFile {
     public:
-        explicit RegularFile(const std::filesystem::path& filename, DiskAccess access);
+        explicit RegularFile(const std::filesystem::path& filename, DiskAccess access = DiskAccess::Read);
 
         u64 GetSize();
         void RequestADifferentFileMode(DiskAccess access);

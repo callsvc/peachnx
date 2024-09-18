@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstring>
+#include <types.h>
 namespace peachnx::crypto {
     // https://github.com/Thealexbarney/LibHac/blob/master/KEYS.md
     using Key128 = std::array<u8, 16>;

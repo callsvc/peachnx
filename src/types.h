@@ -4,12 +4,15 @@
 #include <cstring>
 
 namespace peachnx {
+    template <typename T>
+    concept PcNotVoid = !std::is_same_v<T, void> && !std::is_pointer_v<T>;
+
     template <typename T> requires (std::is_unsigned_v<T>)
     T MakeMagic(const std::string_view& magicAsStr) {
-        if (magicAsStr.size() < sizeof(T))
+        if (magicAsStr.size() > sizeof(T))
             return {};
         T magic{};
-        std::memcpy(&magic, &magicAsStr[0], sizeof(T));
+        std::memcpy(&magic, &magicAsStr[0], magicAsStr.size());
         return magic;
     }
 
