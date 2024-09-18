@@ -2,6 +2,7 @@
 
 #include <crypto/aes_storage.h>
 namespace peachnx::disk {
+    constexpr auto sdkMinimumVersion{0x000b0000};
     NCA::NCA(const crypto::KeysDb& keysDb, const VirtFilePtr& nca) {
         if (!nca)
             return;
@@ -12,6 +13,16 @@ namespace peachnx::disk {
             auto titleKey{*keysDb.headerKey};
             crypto::AesStorage storage(MBEDTLS_CIPHER_AES_128_XTS, titleKey);
             storage.DecryptXts<NcaHeader>(header, 0, 0x200);
+
+            if (header.sdkAddonVersion < sdkMinimumVersion)
+                throw std::runtime_error("SDK addon version too small");
         }
+        // Checking if the user-provided keys meet the requirements to proceed
+        const auto keyGeneration{std::max(header.keyGeneration0, header.keyGeneration1) - 1};
+        const auto keyIndex{header.keyArea};
+        if (!keysDb.Exists(keyGeneration, keyIndex)) {
+            throw std::runtime_error("Key area not found");
+        }
+
     }
 }

@@ -50,9 +50,9 @@ namespace peachnx::crypto {
     }
 
     void AesStorage::NextIvTweak(const XtsIv& entropy) {
-        const auto done{boost::endian::load_little_s64(&entropy[0])};
+        const auto done{boost::endian::load_big_u64(&entropy[0])};
 
-        std::memcpy(&iv[0], &done, sizeof(done));
+        std::memcpy(&iv[8], &done, sizeof(done));
         ResetIv();
     }
     void AesStorage::ResetIv() {

@@ -1,7 +1,11 @@
+#include <algorithm>
+#include <ranges>
+
+#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include <crypto/keysdb.h>
 #include <core/assets_backing.h>
+#include <crypto/keysdb.h>
 namespace peachnx::crypto {
     template <u64 Size>
     auto StringToByteArray(const std::string_view& desired) {
@@ -31,12 +35,17 @@ namespace peachnx::crypto {
     static constexpr std::array keys {
         "header_key", "sd_card_save_key_source", "sd_card_nca_key_source", "sd_card_nca_key_source", "header_key_source", "sd_card_save_key", "sd_card_nca_key"
     };
+    static constexpr std::array indexedKeys {
+        "key_area_key_application_", "key_area_key_ocean_", "key_area_key_system_"
+    };
 
     KeysDb::KeysDb() {
         for (const auto& keysName : keys) {
             keys256Id.emplace(keysName, std::nullopt);
         }
-
+        for (const auto& indexed : indexedKeys) {
+            indexedKey128Names.emplace(indexed, IndexKey128{});
+        }
     }
     void KeysDb::Initialize(const core::AssetsBacking& assets) {
         const auto prod{assets.GetProdKey()};
@@ -71,8 +80,40 @@ namespace peachnx::crypto {
             if (keysIt->first == keys[0])
                 headerKey = taggedKey;
             keysIt->second = taggedKey;
+
+            return;
         }
 
+        const auto keyIndexName{name.substr(0, name.size() - 2)};
+        const auto indexedIt{indexedKey128Names.find(keyIndexName)};
+
+        if (indexedIt != std::end(indexedKey128Names)) {
+            const auto keyIndex = [&] -> u64 {
+                for (const auto& [index, value] : std::views::enumerate(indexedKeys)) {
+                    if (keyIndexName == value)
+                        return index;
+                }
+                return -1;
+            }();
+            std::vector<u8> bytes;
+            boost::algorithm::unhex(name.substr(keyIndexName.size(), 2), std::back_inserter(bytes));
+            const KeyIndexPair pair{bytes[0], keyIndex};
+            indexedIt->second[pair] = StringToByteArray<16>(value);
+        }
+    }
+    bool KeysDb::Exists(const u64 master, const u64 index) const {
+        bool present{};
+        const KeyIndexPair keyPair{master, index};
+
+        for (const auto& indexes : std::views::values(indexedKey128Names)) {
+            if (indexes.contains(keyPair))
+                if (indexes.at(keyPair) != Key128{})
+                    present = true;
+            if (present)
+                break;
+        }
+
+        return present;
     }
     void KeysDb::ParserKeyFile(const disk::VirtFilePtr& keyFile, const KeyType type) {
         const auto content{keyFile->GetBytes(keyFile->GetSize())};
