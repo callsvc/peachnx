@@ -2,6 +2,7 @@
 
 #include <disk/virtual_types.h>
 #include <crypto/keysdb.h>
+#include <crypto/aes_storage.h>
 namespace peachnx::disk {
     enum DistributionType : u8 {
         Download,
@@ -46,8 +47,8 @@ namespace peachnx::disk {
 #pragma pack(push, 1)
     struct FsEntry {
         u32 startSector;
-        u32 endSector;
-        u32 hashSectors;
+        u32 endSector;   // (in blocks which are 0x200 bytes)
+        u32 contentHash;
         u32 pad0;
     };
 
@@ -80,11 +81,12 @@ namespace peachnx::disk {
     public:
         explicit NCA(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
 
+    private:
+        void ReadContent(const VirtFilePtr& nca);
+        u32 GetFsEntriesCount() const;
+
+        std::optional<crypto::AesStorage> storage;
         NcaHeader header;
         u32 version{};
-    private:
-        void ReadContent(const VirtFilePtr& nca) const;
-
-        u32 GetFsEntriesCount() const;
     };
 }
