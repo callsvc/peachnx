@@ -36,7 +36,7 @@ namespace peachnx::disk {
         decltype(size) blkOffset{};
         do {
             const u64 readStride{output.size() < 4096 ? output.size() : 4096};
-            const auto readOffset{offset + blkOffset};
+            const auto readOffset{rd + offset + blkOffset};
 
             const auto result{pread64(descriptor, &output[blkOffset], readStride, readOffset)};
             if (result < 0)

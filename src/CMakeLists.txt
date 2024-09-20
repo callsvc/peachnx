@@ -37,6 +37,8 @@ target_sources(pnx_lib PUBLIC
     disk/nca.h
     disk/nca_filesystem_info.cpp
     disk/nca_filesystem_info.h
+    disk/encrypted_ranged_file.cpp
+    disk/encrypted_ranged_file.h
     disk/offset_file.cpp
     disk/offset_file.h
     disk/partition_filesystem.cpp

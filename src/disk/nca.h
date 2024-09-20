@@ -3,6 +3,8 @@
 #include <disk/virtual_types.h>
 #include <crypto/keysdb.h>
 #include <crypto/aes_storage.h>
+
+#include <disk/nca_filesystem_info.h>
 namespace peachnx::disk {
     enum DistributionType : u8 {
         Download,
@@ -21,36 +23,8 @@ namespace peachnx::disk {
         Ocean,
         System
     };
-    enum FsType : u8 {
-        RomFs,
-        PartitionFs
-    };
-    enum class HashType : u8 {
-        Auto,
-        None,
-        HierarchicalSha256Hash,
-        HierarchicalIntegrityHash,
-        AutoSha3,
-        HierarchicalSha3256Hash,
-        HierarchicalIntegritySha3Hash
-    };
-    enum class EncryptionType : u8 {
-        Auto,
-        None,
-        AesXts,
-        AesCtr,
-        AesCtrEx,
-        AesCtrSkipLayerHash,
-        AesCtrExSkipLayerHash
-    };
     constexpr auto fsEntriesMaxCount{4};
 #pragma pack(push, 1)
-    struct FsEntry {
-        u32 startSector;
-        u32 endSector;   // (in blocks which are 0x200 bytes)
-        u32 contentHash;
-        u32 pad0;
-    };
 
     struct NcaHeader {
         std::array<u8, 0x100> rsa;
@@ -82,7 +56,7 @@ namespace peachnx::disk {
         explicit NCA(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
 
     private:
-        void ReadContent(const VirtFilePtr& nca);
+        void ReadContent(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
         u32 GetFsEntriesCount() const;
 
         std::optional<crypto::AesStorage> storage;

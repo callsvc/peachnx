@@ -49,6 +49,7 @@ namespace peachnx::crypto {
             std::memcpy(output, destination, result);
     }
 
+    // https://gist.github.com/SciresM/fe8a631d13c069bd66e9c656ab5b3f7f
     void AesStorage::NextIvTweak(const XtsIv& entropy) {
         const auto done{boost::endian::load_big_u64(&entropy[0])};
 
@@ -59,16 +60,15 @@ namespace peachnx::crypto {
         if (mbedtls_cipher_set_iv(&generic, &iv[0], iv.size()) != 0)
             throw std::runtime_error("Failed to set up the initialization vector");
     }
-    void AesStorage::DecryptXts(void* output, void* source, const u64 size, const u64 sector, const u64 stride) {
+    void AesStorage::DecryptXts(void* output, void* source, const u64 size, u64 sector, const u64 stride) {
         if (size && stride)
             if (size % stride)
                 throw std::runtime_error("Size must be a multiple of the sector");
 
-        u64 count{sector};
         for (u64 offset{}; offset < size; offset += stride) {
-            NextIvTweak({reinterpret_cast<u8*>(&count), sizeof(count)});
+            NextIvTweak({reinterpret_cast<u8*>(&sector), sizeof(sector)});
             Decrypt(static_cast<u8*>(output) + offset, static_cast<u8*>(source) + offset, stride);
-            count++;
+            sector++;
         }
     }
 }

@@ -1,7 +1,6 @@
 #include <cassert>
 #include <ranges>
 
-#include <disk/nca_filesystem_info.h>
 #include <disk/nca.h>
 namespace peachnx::disk {
     constexpr auto sdkMinimumVersion{0x000b0000};
@@ -53,12 +52,16 @@ namespace peachnx::disk {
             std::memcpy(&rightsPair[0], &header.rightsId[0], sizeof(rightsPair));
         }
 
-        ReadContent(nca);
+        ReadContent(keysDb, nca);
     }
-    void NCA::ReadContent(const VirtFilePtr& nca) {
+    void NCA::ReadContent(const crypto::KeysDb& keysDb, const VirtFilePtr& nca) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
-            NcaFilesystemInfo fsInfo{nca, entry};
-            [[maybe_unused]] auto backing{fsInfo.OpenEncryptedStorage(storage)};
+            NcaFilesystemInfo fsInfo{nca, header.entries[0], entry};
+            const auto backing{fsInfo.OpenEncryptedStorage(keysDb, storage)};
+
+            const u32 magic{backing->Read<u32>()};
+            if (fsInfo.isPartition)
+                assert(magic == MakeMagic<u32>("PFS0"));
         }
     }
     u32 NCA::GetFsEntriesCount() const {
