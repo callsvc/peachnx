@@ -1,4 +1,7 @@
 #include <cassert>
+
+#include <boost/endian/conversion.hpp>
+
 #include <disk/nca.h>
 #include <disk/encrypted_ranged_file.h>
 #include <disk/nca_filesystem_info.h>
@@ -12,7 +15,7 @@ namespace peachnx::disk {
 
         encrypted = header.version != FsHeaderVersion;
     }
-    VirtFilePtr NcaFilesystemInfo::OpenEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage) {
+    VirtFilePtr NcaFilesystemInfo::MountEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage) {
         if (encrypted && !storage) {
             throw std::runtime_error("No valid XTS context provided");
         }
@@ -26,25 +29,31 @@ namespace peachnx::disk {
         const auto mbedType = [&] {
             if (header.encryptionType == EncryptionType::AesXts)
                 return MBEDTLS_CIPHER_AES_128_XTS;
-            return MBEDTLS_CIPHER_NULL;
+            if (header.encryptionType == EncryptionType::AesCtr)
+                return MBEDTLS_CIPHER_AES_128_CTR;
+
+            throw std::runtime_error("Unsupported encryption type for the current content");
         }();
 
-        if (mbedType == MBEDTLS_CIPHER_NULL)
-            throw std::runtime_error("Unsupported encryption type for the current content");
-
-        const auto headerKey{*keysDb.headerKey};
-        EncryptContext encrypted{mbedType, headerKey, entry.startSector};
-
+        EncryptContext encrypted{mbedType, *keysDb.headerKey, entry.startSector};
         auto containedBacking = [&] -> VirtFilePtr {
+            auto secure{header.secureValue};
+            auto generation{header.generation};
+            boost::endian::endian_reverse_inplace(secure);
+            boost::endian::endian_reverse_inplace(generation);
+
             switch (header.encryptionType) {
-                case EncryptionType::AesXts:
-                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, offset, count, GetEntryName());
+                case EncryptionType::AesCtr:
+                    std::memcpy(&encrypted.ctr[0], &secure, sizeof(u32));
+                    std::memcpy(&encrypted.ctr[4], &generation, sizeof(u32));
                 default: {}
             }
-            return {};
+            return std::make_shared<EncryptedRangedFile>(parent, encrypted, offset, count, GetEntryName());
         }();
+
         return containedBacking;
     }
+
     std::string NcaFilesystemInfo::GetEntryName() const {
         std::string filename;
         filename.reserve(64);

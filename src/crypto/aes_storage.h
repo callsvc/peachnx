@@ -6,12 +6,13 @@
 #include <crypto/keys_types.h>
 #include <mbedtls/cipher.h>
 namespace peachnx::crypto {
-    using XtsIv = std::span<u8>;
     class AesStorage {
     public:
         explicit AesStorage(mbedtls_cipher_type_t type, const std::span<u8>& key);
         void Decrypt(u8* output, const u8* source, u64 size);
-        void NextIvTweak(const XtsIv& entropy);
+        void ResetIv(const std::array<u8, 16>& resetIv) {
+            std::memcpy(&iv[0], &resetIv[0], sizeof(iv));
+        }
         void ResetIv();
 
         void DecryptXts(PcNotVoid auto& obfuscated, const u64 sector, const u64 stride) {
@@ -23,6 +24,7 @@ namespace peachnx::crypto {
         }
 
         void DecryptXts(void* output, void* source, u64 size, u64 sector, u64 stride);
+        void SetupIvTweak(u64 update);
 
     private:
         Key128 iv{};

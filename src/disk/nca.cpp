@@ -26,7 +26,7 @@ namespace peachnx::disk {
         u32 archive;
         if ((archive = CheckContentArchiveMagic(header.magic)) == 0) {
             auto titleKey{*keysDb.headerKey};
-            storage = crypto::AesStorage(MBEDTLS_CIPHER_AES_128_XTS, titleKey);
+            storage.emplace(MBEDTLS_CIPHER_AES_128_XTS, titleKey);
         }
         if (archive != MakeMagic<u32>("NCA3")) {
             if (!keysDb.headerKey)
@@ -57,7 +57,7 @@ namespace peachnx::disk {
     void NCA::ReadContent(const crypto::KeysDb& keysDb, const VirtFilePtr& nca) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
             NcaFilesystemInfo fsInfo{nca, header.entries[0], entry};
-            const auto backing{fsInfo.OpenEncryptedStorage(keysDb, storage)};
+            const auto backing{fsInfo.MountEncryptedStorage(keysDb, storage)};
 
             const u32 magic{backing->Read<u32>()};
             if (fsInfo.isPartition)

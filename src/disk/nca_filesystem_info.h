@@ -43,12 +43,17 @@ namespace peachnx::disk {
         FsType type;
         HashType hashType;
         EncryptionType encryptionType;
+        u16 pad0;
+        std::array<u8, 0xf8> hashData;
+        std::array<u8, 0x40> patchInfo;
+        u32 generation;
+        u32 secureValue;
     };
 
     class NcaFilesystemInfo {
     public:
         NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& detail, u32 index);
-        VirtFilePtr OpenEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage);
+        VirtFilePtr MountEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage);
         std::string GetEntryName() const;
 
         bool isPartition{};
