@@ -10,30 +10,33 @@ namespace peachnx::disk {
     EncryptedRangedFile::EncryptedRangedFile(const std::shared_ptr<VirtualFile>& parent, const EncryptContext& ctx, const u64 offset, const u64 size, const std::filesystem::path& filename) : VirtualFile(filename, DiskAccess::Read, false, offset, size), backing(parent), context(ctx) {
         cipher.emplace(context.type, context.key);
 
-        if (context.type == MBEDTLS_CIPHER_AES_128_CTR) {
-            sectorSize = ctrSectorSize;
+        const auto isCtr{cipher->IsCtrMode()};
+        DecryptFuncImpl = isCtr ? &EncryptedRangedFile::DecryptFuncCtr : &EncryptedRangedFile::DecryptFuncXts;
+        sectorSize = isCtr ? ctrSectorSize : xtsSectorSize;
+
+        if (isCtr)
             cipher->ResetIv(ctx.nonce);
-        } else {
-            sectorSize = xtsSectorSize;
-        }
     }
     u64 EncryptedRangedFile::ReadImpl(const std::span<u8>& output, const u64 offset) {
-        const auto target{boost::alignment::align_up(output.size(), sectorSize)};
-        auto content{backing->GetBytes(target, readOffset + offset)};
+        if (!output.size())
+            return {};
+        const auto sectorOffset{offset % sectorSize};
+        if (!sectorOffset) {
+            assert(output.size() % sectorSize);
 
-        if (content.size() < output.size()) {
-            throw std::runtime_error("Unable to read one or more sectors of the file");
+            if (backing->Read(output, readOffset + offset) != output.size())
+                return {};
+            (this->*DecryptFuncImpl)(output, offset);
+            return output.size();
         }
-        if (context.type == MBEDTLS_CIPHER_AES_128_XTS) {
-            const auto counter{offset / sectorSize + context.sector};
-            cipher->DecryptXts(&content[0], content.size(), counter, sectorSize);
-        }
+        const auto target{sectorOffset - offset};
+        backing->Read(output, readOffset + target);
 
-        if (context.type == MBEDTLS_CIPHER_AES_128_CTR) {
-            UpdateCtrIv(offset);
-            cipher->Decrypt(&content[0], &content[0], content.size());
+        std::vector<u8> placeable(sectorSize);
+        (this->*DecryptFuncImpl)(placeable, target);
+        if (size + sectorOffset < sectorSize) {
+            std::memcpy(output.data(), &placeable[sectorOffset], size);
         }
-        std::memcpy(&output[0], &content[0], output.size());
         return output.size();
     }
     void EncryptedRangedFile::UpdateCtrIv(u64 offset) {
@@ -41,5 +44,12 @@ namespace peachnx::disk {
         offset >>= 4;
         cipher->SetupIvTweak(offset);
     }
-
+    void EncryptedRangedFile::DecryptFuncXts(const std::span<u8>& content, const u64 offset) {
+        const auto counter{offset / sectorSize + context.sector};
+        cipher->DecryptXts(&content[0], content.size(), counter, sectorSize);
+    }
+    void EncryptedRangedFile::DecryptFuncCtr(const std::span<u8>& content, const u64 offset) {
+        UpdateCtrIv(offset);
+        cipher->Decrypt(&content[0], &content[0], content.size());
+    }
 }

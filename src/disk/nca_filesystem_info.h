@@ -54,7 +54,7 @@ namespace peachnx::disk {
     public:
         NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& detail, u32 index);
         VirtFilePtr MountEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage);
-        std::string GetEntryName() const;
+        std::string GetFileName() const;
 
         bool isPartition{};
     private:

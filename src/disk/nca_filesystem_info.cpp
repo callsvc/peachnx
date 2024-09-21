@@ -20,7 +20,7 @@ namespace peachnx::disk {
             throw std::runtime_error("No valid XTS context provided");
         }
         if (!encrypted) {
-            return std::make_shared<OffsetFile>(parent, offset, count, GetEntryName());
+            return std::make_shared<OffsetFile>(parent, offset, count, GetFileName());
         }
         storage->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
         assert(header.version == FsHeaderVersion);
@@ -39,22 +39,20 @@ namespace peachnx::disk {
         auto containedBacking = [&] -> VirtFilePtr {
             auto secure{header.secureValue};
             auto generation{header.generation};
+
             boost::endian::endian_reverse_inplace(secure);
             boost::endian::endian_reverse_inplace(generation);
-
-            switch (header.encryptionType) {
-                case EncryptionType::AesCtr:
-                    std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
-                    std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
-                default: {}
+            if (mbedType == MBEDTLS_CIPHER_AES_128_CTR) {
+                std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
+                std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
             }
-            return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetEntryName());
+            return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetFileName());
         }();
 
         return containedBacking;
     }
 
-    std::string NcaFilesystemInfo::GetEntryName() const {
+    std::string NcaFilesystemInfo::GetFileName() const {
         std::string filename;
         filename.reserve(64);
         if (header.type == NsaFsHeader::PartitionFs) {

@@ -17,10 +17,15 @@ namespace peachnx::disk {
     private:
         u64 ReadImpl(const std::span<u8>& output, u64 offset) override;
         void UpdateCtrIv(u64 offset);
+        void DecryptFuncXts(const std::span<u8>& content, u64 offset);
+        void DecryptFuncCtr(const std::span<u8>& content, u64 offset);
 
         const std::shared_ptr<VirtualFile>& backing;
         std::optional<crypto::AesStorage> cipher;
         EncryptContext context;
+
         u64 sectorSize{};
+        using DecryptFuncCallback = void (EncryptedRangedFile::*)(const std::span<u8>&, u64 offset);
+        DecryptFuncCallback DecryptFuncImpl{};
     };
 }

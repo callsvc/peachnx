@@ -22,7 +22,6 @@ namespace peachnx::crypto {
 
         if (output == source) {
             if (size > 1024 * 1024) {
-                // ReSharper disable once CppJoinDeclarationAndAssignment
                 aux.emplace(size);
                 destination = &(*aux)[0];
             } else {
@@ -48,7 +47,7 @@ namespace peachnx::crypto {
                 if (block.empty())
                     throw std::runtime_error("Block is empty");
                 std::memcpy(&block[0], source, size);
-                Decrypt(&block[0], &block[0], size);
+                Decrypt(&block[0], &block[0], block.size());
                 std::memcpy(destination, &block[0], size);
 
                 return;
@@ -57,7 +56,7 @@ namespace peachnx::crypto {
             // https://github.com/Mbed-TLS/mbedtls/blob/2ca6c285a0dd3f33982dd57299012dacab1ff206/library/aes.c#L1453
             u32 processed{};
             for (u64 offset{}; offset < size; offset += blockSize) {
-                const auto length{std::min<u64>(blockSize, size)};
+                const auto length{std::min<u64>(blockSize, size - offset)};
                 mbedtls_cipher_update(&generic, &source[offset], length, &destination[offset], &result);
                 processed += result;
             }
@@ -98,5 +97,8 @@ namespace peachnx::crypto {
 
         std::memcpy(&iv[8], &inverted, sizeof(inverted));
         ResetIv();
+    }
+    bool AesStorage::IsCtrMode() const {
+        return mbedtls_cipher_get_cipher_mode(&generic) == MBEDTLS_MODE_CTR;
     }
 }

@@ -23,7 +23,7 @@ namespace peachnx::crypto {
 
         void DecryptXts(void* output, void* source, u64 size, u64 sector, u64 stride);
         void SetupIvTweak(u64 update);
-
+        bool IsCtrMode() const;
     private:
         Key128 iv{};
 
