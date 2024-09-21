@@ -5,9 +5,9 @@ namespace peachnx::disk {
 
         if (!tangible) {
             if (privilege == DiskAccess::Read)
-                rd = virtOff;   
+                readOffset = virtOff;
             else if (privilege == DiskAccess::Write)
-                wr = virtOff;
+                writeOffset = virtOff;
             size = virtSize;
             return;
         }

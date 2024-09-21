@@ -10,7 +10,7 @@ namespace peachnx::disk {
         if (output.size() > size - offset) {
             buffer = output.subspan(0, size - offset);
         }
-        const auto result{backing->Read(buffer, rd + offset)};
+        const auto result{backing->Read(buffer, readOffset + offset)};
         if (result != buffer.size()) {
             throw std::runtime_error("Read failed");
         }

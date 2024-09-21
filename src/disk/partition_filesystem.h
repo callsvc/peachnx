@@ -20,7 +20,7 @@ namespace peachnx::disk {
 
     class PartitionFilesystem {
     public:
-        explicit PartitionFilesystem(const VirtFilePtr& pfs);
+        explicit PartitionFilesystem(const VirtFilePtr& pfs, bool displayContent = false);
 
         auto& GetAllFiles() {
             if (header.entryCount < pfsFiles.size()) {

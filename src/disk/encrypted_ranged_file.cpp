@@ -12,33 +12,34 @@ namespace peachnx::disk {
 
         if (context.type == MBEDTLS_CIPHER_AES_128_CTR) {
             sectorSize = ctrSectorSize;
-            cipher->ResetIv(ctx.ctr);
+            cipher->ResetIv(ctx.nonce);
         } else {
             sectorSize = xtsSectorSize;
         }
     }
     u64 EncryptedRangedFile::ReadImpl(const std::span<u8>& output, const u64 offset) {
         const auto target{boost::alignment::align_up(output.size(), sectorSize)};
-        auto content{backing->GetBytes(target, rd + offset)};
+        auto content{backing->GetBytes(target, readOffset + offset)};
 
-        const auto counter{offset / sectorSize + context.sector};
+        if (content.size() < output.size()) {
+            throw std::runtime_error("Unable to read one or more sectors of the file");
+        }
         if (context.type == MBEDTLS_CIPHER_AES_128_XTS) {
+            const auto counter{offset / sectorSize + context.sector};
             cipher->DecryptXts(&content[0], content.size(), counter, sectorSize);
         }
 
         if (context.type == MBEDTLS_CIPHER_AES_128_CTR) {
-            UpdateCtrIv(backing->GetOffset(true) + offset);
+            UpdateCtrIv(offset);
             cipher->Decrypt(&content[0], &content[0], content.size());
-        }
-        if (content.size() < output.size()) {
-            throw std::runtime_error("Unable to read one or more sectors of the file");
         }
         std::memcpy(&output[0], &content[0], output.size());
         return output.size();
     }
-    void EncryptedRangedFile::UpdateCtrIv(u64 offsetCtr) {
-        offsetCtr >>= 4;
-        cipher->SetupIvTweak(offsetCtr);
+    void EncryptedRangedFile::UpdateCtrIv(u64 offset) {
+        offset += backing->GetOffset();
+        offset >>= 4;
+        cipher->SetupIvTweak(offset);
     }
 
 }

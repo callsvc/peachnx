@@ -10,9 +10,7 @@ namespace peachnx::crypto {
     public:
         explicit AesStorage(mbedtls_cipher_type_t type, const std::span<u8>& key);
         void Decrypt(u8* output, const u8* source, u64 size);
-        void ResetIv(const std::array<u8, 16>& resetIv) {
-            std::memcpy(&iv[0], &resetIv[0], sizeof(iv));
-        }
+        void ResetIv(const std::array<u8, 16>& value);
         void ResetIv();
 
         void DecryptXts(PcNotVoid auto& obfuscated, const u64 sector, const u64 stride) {

@@ -35,7 +35,7 @@ namespace peachnx::disk {
             throw std::runtime_error("Unsupported encryption type for the current content");
         }();
 
-        EncryptContext encrypted{mbedType, *keysDb.headerKey, entry.startSector};
+        EncryptContext fileInfo{mbedType, *keysDb.headerKey, entry.startSector};
         auto containedBacking = [&] -> VirtFilePtr {
             auto secure{header.secureValue};
             auto generation{header.generation};
@@ -44,11 +44,11 @@ namespace peachnx::disk {
 
             switch (header.encryptionType) {
                 case EncryptionType::AesCtr:
-                    std::memcpy(&encrypted.ctr[0], &secure, sizeof(u32));
-                    std::memcpy(&encrypted.ctr[4], &generation, sizeof(u32));
+                    std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
+                    std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
                 default: {}
             }
-            return std::make_shared<EncryptedRangedFile>(parent, encrypted, offset, count, GetEntryName());
+            return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetEntryName());
         }();
 
         return containedBacking;

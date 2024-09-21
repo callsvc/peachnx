@@ -14,7 +14,6 @@ namespace peachnx::disk {
             filePtr->RequestADifferentFileMode(access);
             return std::optional<RegularFilePtr>{};
         };
-
         RegularFilePtr reference;
 
         std::scoped_lock lock(lockFsList);

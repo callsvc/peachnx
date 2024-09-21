@@ -20,7 +20,7 @@ namespace peachnx::disk {
     };
 #pragma pack(pop)
 
-    PartitionFilesystem::PartitionFilesystem(const VirtFilePtr& pfs) : isHfs(), checked() {
+    PartitionFilesystem::PartitionFilesystem(const VirtFilePtr& pfs, const bool displayContent) : isHfs(), checked() {
         header = pfs->Read<PfsHeader>();
 
         if (header.magic == MakeMagic<u32>("HFS0"))
@@ -42,13 +42,15 @@ namespace peachnx::disk {
         const auto stringTableOffset{entriesOffset + header.entryCount * entrySize};
         const auto contentOffset{stringTableOffset + header.stringTableSize};
 
-        std::print("Entries in this PFS\n");
+        if (displayContent)
+            std::print("Entries in this PFS\n");
         for (u32 entry{}; entry < header.entryCount; entry++) {
             PfsEntryRecord record;
             std::memcpy(&record, &content[entriesOffset + entry * entrySize], sizeof(record));
 
             std::string filename{reinterpret_cast<char*>(&content[stringTableOffset + record.strOff])};
-            std::print("New file named {} found\n", filename);
+            if (displayContent)
+                std::print("New file named {} found\n", filename);
 
             auto reference{std::make_shared<OffsetFile>(pfs, contentOffset + record.offset, record.size, filename)};
 

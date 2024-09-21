@@ -71,6 +71,9 @@ namespace peachnx::crypto {
         if (destination != output)
             std::memcpy(output, destination, result);
     }
+    void AesStorage::ResetIv(const std::array<u8, 16>& value) {
+        std::memcpy(&iv[0], &value[0], sizeof(iv));
+    }
 
     void AesStorage::ResetIv() {
         if (mbedtls_cipher_set_iv(&generic, &iv[0], iv.size()) != 0)

@@ -8,7 +8,7 @@ namespace peachnx::disk {
         crypto::Key256 key;
 
         u64 sector;
-        crypto::Key128 ctr;
+        crypto::Key128 nonce;
     };
     class EncryptedRangedFile final : public VirtualFile {
     public:
@@ -16,11 +16,11 @@ namespace peachnx::disk {
 
     private:
         u64 ReadImpl(const std::span<u8>& output, u64 offset) override;
-        void UpdateCtrIv(u64 offsetCtr);
+        void UpdateCtrIv(u64 offset);
 
         const std::shared_ptr<VirtualFile>& backing;
-        EncryptContext context;
         std::optional<crypto::AesStorage> cipher;
+        EncryptContext context;
         u64 sectorSize{};
     };
 }
