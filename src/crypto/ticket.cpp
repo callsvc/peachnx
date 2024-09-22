@@ -15,7 +15,7 @@ namespace peachnx::crypto {
         const auto signature{ticket->Read<SignatureType>()};
         u32 offset{};
         if (signature == HMAC_SHA1_160) {
-            throw std::runtime_error("HMAC_SHA1_160 not implemented");
+            throw std::runtime_error("HMAC_SHA1_160 is not used by the platform");
         }
         // We'll skip the signatures for now
         switch (signature) {

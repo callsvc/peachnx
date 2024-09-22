@@ -8,7 +8,7 @@
 namespace peachnx::crypto {
     class AesStorage {
     public:
-        explicit AesStorage(mbedtls_cipher_type_t type, const std::span<u8>& key);
+        explicit AesStorage(mbedtls_cipher_type_t type, const u8* key, u64 size);
         ~AesStorage();
         void Decrypt(u8* output, const u8* source, u64 size);
         void ResetIv(const std::array<u8, 16>& value);
@@ -26,8 +26,8 @@ namespace peachnx::crypto {
         void SetupIvTweak(u64 update);
         bool IsCtrMode() const;
     private:
-        Key128 iv{};
-        static_assert(sizeof(iv) == MBEDTLS_MAX_IV_LENGTH);
+        Key128 iVec{};
+        static_assert(sizeof(iVec) == MBEDTLS_MAX_IV_LENGTH);
 
         std::vector<u8> pooled;
         mbedtls_cipher_context_t generic;

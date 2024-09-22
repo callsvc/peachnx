@@ -28,7 +28,7 @@ namespace peachnx::crypto {
         "header_key", "sd_card_save_key_source", "sd_card_nca_key_source", "sd_card_nca_key_source", "header_key_source", "sd_card_save_key", "sd_card_nca_key"
     };
     static constexpr std::array indexedKeys {
-        "key_area_key_application_", "key_area_key_ocean_", "key_area_key_system_"
+        "key_area_key_application_", "key_area_key_ocean_", "key_area_key_system_", "titlekek_"
     };
 
     KeysDb::KeysDb() {
@@ -96,20 +96,37 @@ namespace peachnx::crypto {
             }
         }
     }
-    bool KeysDb::Exists(const u64 master, const u64 index) const {
-        bool present{};
+    std::optional<Key128> KeysDb::GetKey(const u64 master, const u64 index) const {
         const KeyIndexPair keyPair{master, index};
-
-        for (const auto& indexes : std::views::values(indexedKey128Names)) {
+        for (const auto& indexes: std::views::values(indexedKey128Names)) {
             if (indexes.contains(keyPair))
-                if (indexes.at(keyPair) != Key128{})
-                    present = true;
-            if (present)
+                if (!KeyIsEmpty(indexes.at(keyPair)))
+                    return indexes.at(keyPair);
+        }
+        return std::nullopt;
+    }
+
+    std::optional<Key128> KeysDb::GetKey(const std::string_view& kind, const u64 master, const u64 index) const {
+        const KeyIndexPair keyPair{master, index};
+        auto indexedIt{indexedKey128Names.begin()};
+        for (; indexedIt != std::end(indexedKey128Names); ++indexedIt ) {
+            if (indexedIt->first.find(kind) != std::string::npos)
                 break;
         }
-
-        return present;
+        if (indexedIt != std::end(indexedKey128Names))
+            if (indexedIt->second.contains(keyPair))
+                return indexedIt->second.at(keyPair);
+        return {};
     }
+    std::optional<Key128> KeysDb::GetTitle(const Key128& title) const {
+        const auto desired{titleKeys.find(title)};
+        if (desired != std::end(titleKeys))
+            if (!KeyIsEmpty(desired->second))
+                return desired->second;
+
+        return std::nullopt;
+    }
+
     void KeysDb::ParserKeyFile(const disk::VirtFilePtr& keyFile, const KeyType type) {
         const auto content{keyFile->GetBytes(keyFile->GetSize())};
         if (content.empty())

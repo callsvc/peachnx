@@ -26,9 +26,6 @@ namespace peachnx::disk {
             return ReadImpl(bytes, offset);
         }
         std::vector<u8> GetBytes(u64 size, u64 offset = {});
-        [[nodiscard]] u64 GetOffset(const bool read = true) const {
-            return read ? readOffset : writeOffset;
-        }
 
         [[nodiscard]] auto GetFilePrivilege() const {
             return privilege;

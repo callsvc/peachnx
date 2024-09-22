@@ -16,8 +16,8 @@ namespace peachnx::loader {
             crypto::Ticket ticket{files.at(filename)};
             keysDb.AddTicket(ticket);
             crypto::Key128 value;
-            if (!keysDb.headerKey) {
-                std::memcpy(&value, &ticket.titleKeyBlock, sizeof(value));
+            std::memcpy(&value, &ticket.titleKeyBlock, sizeof(value));
+            if (!crypto::KeyIsEmpty(value)) {
                 keysDb.AddTitleKey(ticket.rightsId, value);
             }
         }

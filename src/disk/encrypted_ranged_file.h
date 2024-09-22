@@ -5,7 +5,7 @@
 namespace peachnx::disk {
     struct EncryptContext {
         mbedtls_cipher_type_t type;
-        crypto::Key256 key;
+        crypto::Key128 key;
 
         u64 sector;
         crypto::Key128 nonce;

@@ -18,14 +18,14 @@ namespace peachnx::kernel {
 
         std::function<void()> entryPoint;
     };
-    namespace gt = boost::context::detail;
+    namespace bcd = boost::context::detail;
 
     class Async {
     public:
         Async() = default;
         explicit Async(std::function<void()>&& function);
 
-        static void TrappedEntryPoint(gt::transfer_t context);
+        static void TrappedEntryPoint(bcd::transfer_t context);
         std::unique_ptr<AsyncContext> container;
     };
 }

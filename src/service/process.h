@@ -5,6 +5,6 @@
 namespace peachnx::service {
     class Process {
     public:
-        Process(const kernel::Kernel& kernel, const std::shared_ptr<loader::Loader>& loader);
+        Process([[maybe_unused]] const kernel::Kernel& kernel, [[maybe_unused]] const std::shared_ptr<loader::Loader>& loader) {}
     };
 }

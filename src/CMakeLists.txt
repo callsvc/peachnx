@@ -7,6 +7,7 @@ target_sources(pnx_lib PUBLIC
     crypto/ticket.h
     crypto/keysdb.cpp
     crypto/keysdb.h
+    crypto/keys_types.cpp
     crypto/keys_types.h
     crypto/aes_storage.cpp
     crypto/aes_storage.h
@@ -14,7 +15,6 @@ target_sources(pnx_lib PUBLIC
     settings/configuration.h
     settings/options_type.h
     settings/options.h
-    service/process.cpp
     service/process.h
     core/application.cpp
     core/application.h
@@ -49,11 +49,9 @@ target_sources(pnx_lib PUBLIC
     surface/sdl_impl_gl.h
     service/am/am_types.h
     service/am/applet_manager.h
-    kernel/kernel.cpp
     kernel/kernel.h
     kernel/async.cpp
     kernel/async.h
-    kernel/kernel_types.h
     virtual_allocator.cpp
     virtual_allocator.h
     container.h

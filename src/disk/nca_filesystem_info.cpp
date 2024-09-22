@@ -7,28 +7,22 @@
 #include <disk/nca_filesystem_info.h>
 
 namespace peachnx::disk {
-    NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& detail, const u32 index) :
-        parent(nca), section(index), offset(sizeof(NcaHeader) + sizeof(FsEntry) * index), entry(detail) {
+    NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, const u32 index) :
+        parent(nca), section(index), offset(sizeof(NcaHeader) + sizeof(FsEntry) * index), entry(fsInfo) {
         header = nca->Read<NsaFsHeader>(offset);
         offset = entry.startSector * 0x200;
         count = (entry.endSector - entry.startSector) * 0x200;
 
-        encrypted = header.version != FsHeaderVersion;
+        encrypted = header.version != fsHeaderVersion;
     }
-    VirtFilePtr NcaFilesystemInfo::MountEncryptedStorage(const crypto::KeysDb& keysDb, std::optional<crypto::AesStorage>& storage) {
-        if (encrypted && !storage) {
-            throw std::runtime_error("No valid XTS context provided");
-        }
-        if (!encrypted) {
-            return std::make_shared<OffsetFile>(parent, offset, count, GetFileName());
-        }
-        assert(encrypted && header.encryptionType != EncryptionType::None);
+    VirtFilePtr NcaFilesystemInfo::MountEncryptedFile(NCA& nca) {
+        nca.cipher->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
 
-        storage->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
-        assert(header.version == FsHeaderVersion);
         isPartition = header.type == NsaFsHeader::PartitionFs;
-
         const auto mbedType = [&] {
+            if (header.encryptionType == EncryptionType::None) {
+                return MBEDTLS_CIPHER_NONE;
+            }
             if (header.encryptionType == EncryptionType::AesXts)
                 return MBEDTLS_CIPHER_AES_128_XTS;
             if (header.encryptionType == EncryptionType::AesCtr)
@@ -37,20 +31,22 @@ namespace peachnx::disk {
             throw std::runtime_error("Unsupported encryption type for the current content");
         }();
 
-        EncryptContext fileInfo{mbedType, *keysDb.headerKey, entry.startSector};
+        if (mbedType != MBEDTLS_CIPHER_NONE)
+            assert(encrypted && header.encryptionType != EncryptionType::None);
+
         auto containedBacking = [&] -> VirtFilePtr {
-            auto secure{header.secureValue};
-            auto generation{header.generation};
+            auto secure{header.nonce};
 
             boost::endian::endian_reverse_inplace(secure);
-            boost::endian::endian_reverse_inplace(generation);
+            EncryptContext encrypted(mbedType, nca.ReadExternalKey(header.encryptionType), entry.startSector);
 
             switch (header.encryptionType) {
+                case EncryptionType::None:
+                    return std::make_shared<OffsetFile>(parent, offset, count, GetFileName());
                 case EncryptionType::AesCtr:
-                    std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
-                    std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
+                    std::memcpy(&encrypted.nonce[0], &secure, sizeof(u64));
                 case EncryptionType::AesXts:
-                    return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetFileName());
+                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, offset, count, GetFileName());
                 default:
                     return nullptr;
             }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstring>
 #include <types.h>
 namespace peachnx::crypto {
@@ -15,4 +16,6 @@ namespace peachnx::crypto {
             return std::hash<u64>()(pairs[0]) ^ std::hash<u64>()(pairs[1]);
         }
     };
+
+    bool KeyIsEmpty(const Key128& key);
 }

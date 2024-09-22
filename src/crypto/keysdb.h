@@ -39,7 +39,9 @@ namespace peachnx::crypto {
         void AddTitleKey(const std::string_view& name, const std::string_view& value);
         void AddProdKey(const std::string_view& name, const std::string_view& value);
 
-        bool Exists(u64 master, u64 index) const;
+        std::optional<Key128> GetKey(u64 master = {}, u64 index = {}) const;
+        std::optional<Key128> GetKey(const std::string_view& kind, u64 master = {}, u64 index = {}) const;
+        std::optional<Key128> GetTitle(const Key128& title) const;
 
         std::optional<Key256> headerKey{};
     private:

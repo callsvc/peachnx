@@ -8,11 +8,12 @@
 #include <crypto/aes_storage.h>
 namespace peachnx::crypto {
 
-    AesStorage::AesStorage(const mbedtls_cipher_type_t type, const std::span<u8>& key) {
+    AesStorage::AesStorage(const mbedtls_cipher_type_t type, const u8* key, const u64 size) {
         mbedtls_cipher_init(&generic);
         if (mbedtls_cipher_setup(&generic, mbedtls_cipher_info_from_type(type)) != 0)
             throw std::runtime_error("Failed to initialize AES context");
-        if (const auto keyResult = mbedtls_cipher_setkey(&generic, &key[0], key.size() * 8, MBEDTLS_DECRYPT))
+
+        if (const auto keyResult = mbedtls_cipher_setkey(&generic, key, size * 8, MBEDTLS_DECRYPT))
             if (keyResult == MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA)
                 throw std::runtime_error("Key size in bits incorrectly specified for the current type");
     }
@@ -20,6 +21,7 @@ namespace peachnx::crypto {
         assert(mbedtls_cipher_get_key_bitlen(&generic));
         mbedtls_cipher_free(&generic);
     }
+
     void AesStorage::Decrypt(u8* output, const u8* source, const u64 size) {
         // ReSharper disable once CppTooWideScope
         std::optional<std::vector<u8>> aux;
@@ -43,7 +45,7 @@ namespace peachnx::crypto {
             throw std::runtime_error("We don't have a buffer selected");
         mbedtls_cipher_reset(&generic);
 
-        u64 result;
+        u64 result{};
         if (mbedtls_cipher_get_cipher_mode(&generic) == MBEDTLS_MODE_XTS) {
             mbedtls_cipher_update(&generic, source, size, destination, &result);
         } else {
@@ -60,14 +62,13 @@ namespace peachnx::crypto {
             }
 
             // https://github.com/Mbed-TLS/mbedtls/blob/2ca6c285a0dd3f33982dd57299012dacab1ff206/library/aes.c#L1453
-            u32 processed{};
             for (u64 offset{}; offset < size; offset += blockSize) {
-                const auto length{std::min<u64>(blockSize, size - offset)};
-                mbedtls_cipher_update(&generic, &source[offset], length, &destination[offset], &result);
-                processed += result;
-            }
+                u64 processed{};
 
-            assert(processed == size);
+                const auto length{std::min<u64>(blockSize, size - offset)};
+                mbedtls_cipher_update(&generic, &source[offset], length, &destination[offset], &processed);
+                result += processed;
+            }
         }
 
         if (result != size)
@@ -77,11 +78,11 @@ namespace peachnx::crypto {
             std::memcpy(output, destination, result);
     }
     void AesStorage::ResetIv(const std::array<u8, 16>& value) {
-        std::memcpy(&iv[0], &value[0], sizeof(iv));
+        std::memcpy(&iVec[0], &value[0], sizeof(iVec));
     }
 
     void AesStorage::ResetIv() {
-        if (mbedtls_cipher_set_iv(&generic, &iv[0], iv.size()) != 0)
+        if (mbedtls_cipher_set_iv(&generic, &iVec[0], iVec.size()) != 0)
             throw std::runtime_error("Failed to set up the initialization vector");
     }
     void AesStorage::DecryptXts(void* output, void* source, const u64 size, u64 sector, const u64 stride) {
@@ -97,11 +98,10 @@ namespace peachnx::crypto {
     }
 
     // https://gist.github.com/SciresM/fe8a631d13c069bd66e9c656ab5b3f7f
-    void AesStorage::SetupIvTweak(u64 update) {
-        const std::span teak{reinterpret_cast<u8*>(&update), sizeof(update)};
-        const auto inverted{boost::endian::load_big_u64(&teak[0])};
+    void AesStorage::SetupIvTweak(const u64 update) {
+        const auto nintendo{boost::endian::native_to_big(update)};
 
-        std::memcpy(&iv[8], &inverted, sizeof(inverted));
+        std::memcpy(&iVec[8], &nintendo, sizeof(nintendo));
         ResetIv();
     }
     bool AesStorage::IsCtrMode() const {

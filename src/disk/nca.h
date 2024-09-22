@@ -33,7 +33,7 @@ namespace peachnx::disk {
         DistributionType distributionType;
         ContentType contentType;
         u8 keyGeneration0;
-        KeyAreaEncryptionKeyIndex keyArea;
+        KeyAreaEncryptionKeyIndex keyAreaType;
         u64 size; // Size of this NCA
         u64 programId;
         u32 contentIndex;
@@ -45,7 +45,7 @@ namespace peachnx::disk {
 
         std::array<FsEntry, fsEntriesMaxCount> entries;
         std::array<std::array<u8, 32>, fsEntriesMaxCount> fsHeaderHashes; // Array of SHA256 hashes (over each FsHeader)
-        std::array<u8, 0x40> encryptedKeyArea;
+        std::array<std::array<u8, 0x10>, 4> encryptedKeyArea;
         std::array<u8, 0xc0> pad1;
     };
     static_assert(sizeof(NcaHeader) == 0x400);
@@ -55,11 +55,15 @@ namespace peachnx::disk {
     public:
         explicit NCA(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
 
+        crypto::Key128 ReadExternalKey(EncryptionType type) const;
+
+        std::optional<crypto::AesStorage> cipher;
     private:
-        void ReadContent(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
+        void ReadContent(const VirtFilePtr& nca);
+        u64 GetGenerationKey() const;
         u32 GetFsEntriesCount() const;
 
-        std::optional<crypto::AesStorage> storage;
+        const crypto::KeysDb& keys;
         NcaHeader header;
         u32 version{};
     };
