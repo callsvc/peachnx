@@ -8,10 +8,10 @@
 
 namespace peachnx::disk {
     NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, const u32 index) :
-        parent(nca), section(index), offset(sizeof(NcaHeader) + sizeof(FsEntry) * index), entry(fsInfo) {
+        parent(nca), section(index), entry(fsInfo) {
+        const auto offset{(sizeof(NcaHeader) + sizeof(FsEntry) * index)};
         header = nca->Read<NsaFsHeader>(offset);
-        offset = entry.startSector * 0x200;
-        count = (entry.endSector - entry.startSector) * 0x200;
+        cfs = ContentFsInfo(entry);
 
         encrypted = header.version != fsHeaderVersion;
     }
@@ -32,21 +32,32 @@ namespace peachnx::disk {
         }();
 
         if (mbedType != MBEDTLS_CIPHER_NONE)
-            assert(encrypted && header.encryptionType != EncryptionType::None);
+            assert(encrypted);
 
         auto containedBacking = [&] -> VirtFilePtr {
             auto secure{header.nonce};
-
             boost::endian::endian_reverse_inplace(secure);
-            EncryptContext encrypted(mbedType, nca.ReadExternalKey(header.encryptionType), entry.startSector);
+            EncryptContext encrypted(mbedType, nca.ReadExternalKey(header.encryptionType));
+
+            auto offset{cfs.offset},
+                size{cfs.size};
+
+            if (header.type == NsaFsHeader::PartitionFs) {
+                assert(!header.hasIntegrity && header.sha256Data.layerCount == 2);
+                // Let's skip the hash table section in this PartitionFs for now
+                assert(header.sha256Data.layers.front().offset == 0);
+                const auto delta{header.sha256Data.layers.front().size};
+                offset += delta;
+                size -= delta;
+            }
 
             switch (header.encryptionType) {
                 case EncryptionType::None:
-                    return std::make_shared<OffsetFile>(parent, offset, count, GetFileName());
+                    return std::make_shared<OffsetFile>(parent, offset, size, GetFileName());
                 case EncryptionType::AesCtr:
                     std::memcpy(&encrypted.nonce[0], &secure, sizeof(u64));
                 case EncryptionType::AesXts:
-                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, offset, count, GetFileName());
+                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, cfs.GetSector(), offset, size, GetFileName());
                 default:
                     return nullptr;
             }
@@ -63,7 +74,7 @@ namespace peachnx::disk {
         } else {
             filename.append("file.");
         }
-        filename.append(std::format("{:08x}.{:08x}", offset, count));
+        filename.append(std::format("{:08x}.{:08x}", cfs.offset, cfs.size));
         const auto superDisk{parent->GetDiskPath()};
         if (!superDisk.empty()) {
             const auto suffix{superDisk.filename().string()};
@@ -71,6 +82,15 @@ namespace peachnx::disk {
         }
 
         return filename;
+    }
+
+    constexpr auto sectorShift{9};
+    ContentFsInfo::ContentFsInfo(const FsEntry& fsInfo) :
+        offset(fsInfo.startSector << sectorShift), size(fsInfo.endSector - fsInfo.startSector << sectorShift) {
+        assert(offset > 0); assert(size > 0);
+    }
+    u64 ContentFsInfo::GetSector(const bool isOffset) const {
+        return isOffset ? offset >> sectorShift : size >> sectorShift;
     }
 }
     

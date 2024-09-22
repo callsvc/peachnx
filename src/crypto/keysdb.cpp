@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <boost/lexical_cast.hpp>
 #include <ranges>
 
 #include <boost/algorithm/hex.hpp>
@@ -90,9 +89,12 @@ namespace peachnx::crypto {
             if (keyIndex == -1)
                 return;
             try {
-                const KeyIndexPair pair{boost::lexical_cast<u32>(name.substr(keyIndexName.size(), 2)), keyIndex};
+                const auto index{StringToByteArray<1>(name.substr(keyIndexName.size(), 2))};
+
+                const KeyIndexPair pair{index[0], keyIndex};
                 indexedIt->second[pair] = StringToByteArray<16>(value);
-            } catch ([[maybe_unused]] boost::bad_lexical_cast& be) {
+            } catch ([[maybe_unused]] std::exception& be) {
+                __builtin_trap();
             }
         }
     }

@@ -23,5 +23,5 @@ namespace peachnx::loader {
         static ApplicationType GetTypeFromFile(disk::VirtFilePtr& probFile);
     };
 
-    std::shared_ptr<Loader> GetLoader(crypto::KeysDb& keysDb, disk::VirtFilePtr& mainFile, LoaderExtra& extra);
+    std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, LoaderExtra& extra);
 }

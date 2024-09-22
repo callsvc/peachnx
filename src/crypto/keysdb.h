@@ -32,6 +32,8 @@ namespace peachnx::crypto {
 
     class KeysDb {
     public:
+        KeysDb(const KeysDb&) = delete;
+
         KeysDb();
         void Initialize(const core::AssetsBacking& assets);
         void AddTicket(const Ticket& ticket);

@@ -20,7 +20,7 @@ namespace peachnx::core {
         void LoadApplication(disk::VirtFilePtr& mainFile, const service::am::AppletParameters& params);
         AssetsBacking assets;
         kernel::Kernel kernel;
-        crypto::KeysDb keys;
+        std::shared_ptr<crypto::KeysDb> kdb;
 
         std::mutex processLock;
         std::atomic<bool> running;

@@ -16,7 +16,8 @@ namespace peachnx::core {
         std::print("Process started with PID {} on CPU {}\n", getpid(), sched_getcpu());
         assets = AssetsBacking(workDir);
 
-        keys.Initialize(assets);
+        kdb = std::make_shared<crypto::KeysDb>();
+        kdb->Initialize(assets);
     }
     Application::~Application() {
         std::print("Process stopped\n");
@@ -43,7 +44,7 @@ namespace peachnx::core {
         loader::LoaderExtra parameters {
             params.programId, params.programIndex
         };
-        appLoader = GetLoader(keys, mainFile, parameters);
+        appLoader = GetLoader(kdb, mainFile, parameters);
     }
 
 }

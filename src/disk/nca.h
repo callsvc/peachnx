@@ -33,7 +33,7 @@ namespace peachnx::disk {
         DistributionType distributionType;
         ContentType contentType;
         u8 keyGeneration0;
-        KeyAreaEncryptionKeyIndex keyAreaType;
+        KeyAreaEncryptionKeyIndex keyIndexType;
         u64 size; // Size of this NCA
         u64 programId;
         u32 contentIndex;

@@ -2,15 +2,6 @@
 
 #include <disk/virtual_types.h>
 namespace peachnx::disk {
-#pragma pack(push, 1)
-
-    struct FsEntry {
-        u32 startSector;
-        u32 endSector;   // (in blocks which are 0x200 bytes)
-        u32 contentHash;
-        u32 pad0;
-    };
-
     enum class EncryptionType : u8 {
         Auto,
         None,
@@ -32,6 +23,14 @@ namespace peachnx::disk {
 
     constexpr auto fsHeaderVersion{2};
 
+#pragma pack(push, 1)
+
+    struct FsEntry {
+        u32 startSector;
+        u32 endSector;   // (in blocks which are 0x200 bytes)
+        u32 contentHash;
+        u32 pad0;
+    };
     struct IntegrityVerification {
         u64 offset;
         u64 size;
@@ -51,6 +50,18 @@ namespace peachnx::disk {
         std::array<u8, 0x18> pad1;
     };
 
+    struct HierarchicalSha256Data {
+        std::array<u8, 0x20> hashTableHash; // Hash over the hash table at the beginning of the data section
+        u32 blockSize;
+        u32 layerCount; // (always 2)
+        struct Region {
+            u64 offset;
+            u64 size;
+        };
+        std::array<Region, 5> layers;
+        std::array<u8, 0x80> pad0;
+    };
+
     struct alignas(0x200) NsaFsHeader {
         enum FsType : u8 {
             RomFs,
@@ -61,9 +72,11 @@ namespace peachnx::disk {
         FsType type;
         HashType hashType;
         EncryptionType encryptionType;
+        bool hasIntegrity;
         u16 pad0;
         union {
             IntegrityMetaInfo integrity;
+            HierarchicalSha256Data sha256Data;
 
             static_assert(sizeof(integrity) == 0xf8);
         };
@@ -75,9 +88,18 @@ namespace peachnx::disk {
             u32 secureValue;
         };
     };
+    static_assert(sizeof(NsaFsHeader) == 0x200);
 #pragma pack(pop)
 
     class NCA;
+
+    struct ContentFsInfo {
+        ContentFsInfo() = default;
+        explicit ContentFsInfo(const FsEntry& fsInfo);
+        u64 GetSector(bool isOffset = true) const;
+        u64 offset;
+        u64 size;
+    };
 
     class NcaFilesystemInfo {
     public:
@@ -90,10 +112,9 @@ namespace peachnx::disk {
         NsaFsHeader header;
         const VirtFilePtr& parent;
         u32 section; // Our section index
-        u32 offset;
+        ContentFsInfo cfs;
 
         FsEntry entry;
-        u32 count;
         bool encrypted;
     };
 }

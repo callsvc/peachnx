@@ -1,13 +1,15 @@
 #include <boost/align/align_up.hpp>
+#include <boost/align/align_down.hpp>
+#include <boost/container/small_vector.hpp>
 
-#include <disk/nca.h>
 #include <disk/encrypted_ranged_file.h>
+#include <disk/nca.h>
 
 namespace peachnx::disk {
     constexpr auto ctrSectorSize{0x10};
     constexpr auto xtsSectorSize{0x200};
 
-    EncryptedRangedFile::EncryptedRangedFile(const std::shared_ptr<VirtualFile>& parent, const EncryptContext& ctx, const u64 offset, const u64 size, const std::filesystem::path& filename) : VirtualFile(filename, DiskAccess::Read, false, offset, size), backing(parent), context(ctx) {
+    EncryptedRangedFile::EncryptedRangedFile(const std::shared_ptr<VirtualFile>& parent, const EncryptContext& ctx, const u64 sector, const u64 offset, const u64 size, const std::filesystem::path& filename) : VirtualFile(filename, DiskAccess::Read, false, offset, size), backing(parent), context(ctx), sectorStart(sector) {
         cipher.emplace(context.type, context.key.data(), 16);
 
         const auto isCtr{cipher->IsCtrMode()};
@@ -21,30 +23,39 @@ namespace peachnx::disk {
     u64 EncryptedRangedFile::ReadImpl(const std::span<u8>& output, const u64 offset) {
         if (!output.size())
             return {};
-        const auto sectorOffset{offset % sectorSize};
-        auto deltaOffset{readOffset + offset};
+        const auto emplace{offset % sectorSize};
+        const auto target{boost::alignment::align_down(readOffset + offset, sectorSize)};
 
-        if (!sectorOffset) {
-            if (backing->Read(output, deltaOffset) != output.size())
-                return {};
-            (this->*DecryptFuncImpl)(output, deltaOffset);
-            return output.size();
+        const auto requested{boost::alignment::align_up(output.size(), sectorSize)};
+        const auto blocks{requested / sectorSize};
+
+        if (requested == output.size()) {
+            if (backing->Read(output, target) != requested)
+                throw std::runtime_error("Failed to read from backing");
+
+            (this->*DecryptFuncImpl)(output, target);
+            return requested;
         }
+        boost::container::small_vector<u8, ctrSectorSize> block(sectorSize);
 
-        const auto target{sectorOffset - offset};
-        deltaOffset = readOffset + target;
-        std::vector<u8> block(sectorSize);
-        backing->Read(block, deltaOffset);
+        if (requested > block.size())
+            block.resize(requested);
 
-        (this->*DecryptFuncImpl)(block, deltaOffset);
+        if (backing->Read(block, target) != block.size())
+            throw std::runtime_error("Failed to read from backing");
 
-        const auto emplace{size + sectorOffset < sectorSize ? size : sectorSize - sectorOffset};
-        assert(block.size() - sectorOffset < emplace);
-        std::memcpy(output.data(), &block[sectorOffset], emplace);
-        u64 result{emplace};
+        (this->*DecryptFuncImpl)(block, target);
 
-        if (output.size() < result)
-            result += backing->Read(output.subspan(result), deltaOffset + emplace);
+        u64 result{};
+        if (emplace) {
+            const auto size{blocks * sectorSize + emplace};
+            std::memcpy(output.data(), block.data(), size);
+            result += size;
+            backing->Read(output.subspan(size), offset + size);
+        } else {
+            std::memcpy(output.data(), block.data(), output.size());
+            result += output.size();
+        }
         return result;
     }
     void EncryptedRangedFile::UpdateCtrIv(u64 offset) {
@@ -52,7 +63,7 @@ namespace peachnx::disk {
         cipher->SetupIvTweak(offset);
     }
     void EncryptedRangedFile::DecryptFuncXts(const std::span<u8>& content, const u64 offset) {
-        const auto counter{offset / sectorSize + context.sector};
+        const auto counter{offset / sectorSize + sectorStart};
         cipher->DecryptXts(&content[0], content.size(), counter, sectorSize);
     }
     void EncryptedRangedFile::DecryptFuncCtr(const std::span<u8>& content, const u64 offset) {

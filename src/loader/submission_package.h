@@ -7,7 +7,7 @@
 namespace peachnx::loader {
     class SubmissionPackage final : public Loader {
     public:
-        SubmissionPackage(crypto::KeysDb& keysMgr, disk::VirtFilePtr& main, const LoaderExtra& pkgParams);
+        SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, const LoaderExtra& pkgParams);
         static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
     private:
         std::unique_ptr<NSP> nsp;
