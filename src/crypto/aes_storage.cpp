@@ -12,7 +12,13 @@ namespace peachnx::crypto {
         mbedtls_cipher_init(&generic);
         if (mbedtls_cipher_setup(&generic, mbedtls_cipher_info_from_type(type)) != 0)
             throw std::runtime_error("Failed to initialize AES context");
-        mbedtls_cipher_setkey(&generic, &key[0], key.size() * 8, MBEDTLS_DECRYPT);
+        if (const auto keyResult = mbedtls_cipher_setkey(&generic, &key[0], key.size() * 8, MBEDTLS_DECRYPT))
+            if (keyResult == MBEDTLS_ERR_CIPHER_BAD_INPUT_DATA)
+                throw std::runtime_error("Key size in bits incorrectly specified for the current type");
+    }
+    AesStorage::~AesStorage() {
+        assert(mbedtls_cipher_get_key_bitlen(&generic));
+        mbedtls_cipher_free(&generic);
     }
     void AesStorage::Decrypt(u8* output, const u8* source, const u64 size) {
         // ReSharper disable once CppTooWideScope

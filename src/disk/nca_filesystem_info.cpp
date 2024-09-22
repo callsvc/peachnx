@@ -22,6 +22,8 @@ namespace peachnx::disk {
         if (!encrypted) {
             return std::make_shared<OffsetFile>(parent, offset, count, GetFileName());
         }
+        assert(encrypted && header.encryptionType != EncryptionType::None);
+
         storage->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
         assert(header.version == FsHeaderVersion);
         isPartition = header.type == NsaFsHeader::PartitionFs;
@@ -42,11 +44,16 @@ namespace peachnx::disk {
 
             boost::endian::endian_reverse_inplace(secure);
             boost::endian::endian_reverse_inplace(generation);
-            if (mbedType == MBEDTLS_CIPHER_AES_128_CTR) {
-                std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
-                std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
+
+            switch (header.encryptionType) {
+                case EncryptionType::AesCtr:
+                    std::memcpy(&fileInfo.nonce[0], &secure, sizeof(u32));
+                    std::memcpy(&fileInfo.nonce[4], &generation, sizeof(u32));
+                case EncryptionType::AesXts:
+                    return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetFileName());
+                default:
+                    return nullptr;
             }
-            return std::make_shared<EncryptedRangedFile>(parent, fileInfo, offset, count, GetFileName());
         }();
 
         return containedBacking;
