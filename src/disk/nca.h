@@ -49,18 +49,21 @@ namespace peachnx::disk {
 #pragma pack(pop)
     class NCA {
     public:
-        explicit NCA(const crypto::KeysDb& keysDb, const VirtFilePtr& nca);
+        explicit NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const VirtFilePtr& content);
 
         crypto::Key128 ReadExternalKey(EncryptionType type) const;
+        bool VerifyNcaIntegrity();
 
         std::optional<crypto::AesStorage> cipher;
     private:
-        void ReadContent(const VirtFilePtr& nca);
+        void ReadContent(const VirtFilePtr& content);
         u64 GetGenerationKey() const;
         u32 GetFsEntriesCount() const;
 
-        const crypto::KeysDb& keys;
+        std::shared_ptr<crypto::KeysDb> keys;
+        VirtFilePtr nca;
         NcaHeader header;
         u32 version{};
+        bool verified{};
     };
 }

@@ -11,19 +11,19 @@
 namespace peachnx::disk {
     NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, const u32 index) :
         parent(nca), section(index), entry(fsInfo) {
-        const auto offset{(sizeof(NcaHeader) + sizeof(NsaFsHeader) * index)};
-        header = nca->Read<NsaFsHeader>(offset);
+        const auto offset{(sizeof(NcaHeader) + sizeof(FsHeader) * index)};
+        header = nca->Read<FsHeader>(offset);
         cfs = ContentFsInfo(entry);
 
         encrypted = header.version != fsHeaderVersion;
     }
-    VirtFilePtr NcaFilesystemInfo::MountEncryptedFile(const std::array<u8, 32>& value, NCA& nca) {
-        nca.cipher->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
+    VirtFilePtr NcaFilesystemInfo::MountEncryptedFile(const std::array<u8, 0x20>& value, NCA& nca) {
+        nca.cipher->DecryptXts<FsHeader>(header, 2 + section, 0x200);
 
         crypto::Checksum expected(value);
         assert(expected.MatchWith(header));
 
-        isPartition = header.type == NsaFsHeader::PartitionFs;
+        isPartition = header.type == FsHeader::PartitionFs;
         if (header.encryptionType != EncryptionType::None)
             assert(encrypted);
 
@@ -31,7 +31,7 @@ namespace peachnx::disk {
             auto secure{header.nonce};
             boost::endian::endian_reverse_inplace(secure);
 
-            if (header.type == NsaFsHeader::PartitionFs) {
+            if (header.type == FsHeader::PartitionFs) {
                 cfs.offset += header.sha256Data.layers.front().size;
                 cfs.size -= header.sha256Data.layers.front().size;
             }
@@ -60,7 +60,7 @@ namespace peachnx::disk {
     std::string NcaFilesystemInfo::GetFileName() const {
         std::string filename;
         filename.reserve(64);
-        if (header.type == NsaFsHeader::PartitionFs) {
+        if (header.type == FsHeader::PartitionFs) {
             filename.append("directory.");
         } else {
             filename.append("file.");

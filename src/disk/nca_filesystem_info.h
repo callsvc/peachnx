@@ -62,7 +62,7 @@ namespace peachnx::disk {
         std::array<u8, 0x80> pad0;
     };
 
-    struct alignas(0x200) NsaFsHeader {
+    struct alignas(0x200) FsHeader {
         enum FsType : u8 {
             RomFs,
             PartitionFs
@@ -90,7 +90,7 @@ namespace peachnx::disk {
             };
         };
     };
-    static_assert(sizeof(NsaFsHeader) == 0x200);
+    static_assert(sizeof(FsHeader) == 0x200);
 #pragma pack(pop)
 
     class NCA;
@@ -111,7 +111,7 @@ namespace peachnx::disk {
 
         bool isPartition{};
     private:
-        NsaFsHeader header;
+        FsHeader header;
         const VirtFilePtr& parent;
         u32 section; // Our section index
         ContentFsInfo cfs;

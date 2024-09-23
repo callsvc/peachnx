@@ -1,28 +1,12 @@
 #include <algorithm>
 #include <ranges>
 
-#include <boost/algorithm/hex.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <generic.h>
 #include <core/assets_backing.h>
 #include <crypto/keysdb.h>
 namespace peachnx::crypto {
-    template <u64 Size>
-    auto StringToByteArray(const std::string_view& desired) {
-        namespace bad = boost::algorithm::detail;
-        std::array<u8, Size> result{};
-        if (desired.size() / 2 != Size)
-            return result;
-        u32 resIndex{};
-        for (decltype(Size) index{}; index < desired.size(); index += 2) {
-            result[resIndex] = bad::hex_char_to_int(desired[index]) << 4;
-            result[resIndex] |= bad::hex_char_to_int(desired[index + 1]) & 0xf;
-            resIndex++;
-        }
-
-        return result;
-    }
-
     static constexpr std::array keys {
         "header_key", "sd_card_save_key_source", "sd_card_nca_key_source", "sd_card_nca_key_source", "header_key_source", "sd_card_save_key", "sd_card_nca_key"
     };

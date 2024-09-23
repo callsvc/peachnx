@@ -57,6 +57,7 @@ target_sources(pnx_lib PUBLIC
     virtual_allocator.cpp
     virtual_allocator.h
     container.h
+    generic.h
     types.cpp
     types.h
 )

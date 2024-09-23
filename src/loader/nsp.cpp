@@ -29,7 +29,8 @@ namespace peachnx::loader {
             if (!filename.ends_with(".cnmt.nca") && !filename.ends_with(".nca"))
                 continue;
 
-            auto nca{std::make_unique<disk::NCA>(*keys, content)};
+            const auto nca{std::make_unique<disk::NCA>(keys, content)};
+            nca->VerifyNcaIntegrity();
         }
     }
 

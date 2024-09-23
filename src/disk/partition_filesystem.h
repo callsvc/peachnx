@@ -8,7 +8,7 @@ namespace peachnx::disk {
     struct PfsHeader {
         u32 magic;
         u32 entryCount;
-        u32 stringTableSize;
+        u32 strOff;
         u32 pad0;
     };
     struct PfsEntryRecord {
