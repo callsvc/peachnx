@@ -49,8 +49,11 @@ namespace peachnx::disk {
     }
     void NCA::ReadContent(const VirtFilePtr& nca) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
-            NcaFilesystemInfo fsInfo{nca, header.entries[entry], entry};
-            const auto backing{fsInfo.MountEncryptedFile(*this)};
+            const auto& fsEntry{header.entries[entry]};
+            const auto& hashOverHeader{header.fsHeaderHashes[entry]};
+
+            NcaFilesystemInfo fsInfo{nca, fsEntry, entry};
+            const auto backing{fsInfo.MountEncryptedFile(hashOverHeader, *this)};
 
             const auto unaligned{backing->GetBytes(50)};
             u32 magic{};

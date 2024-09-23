@@ -4,9 +4,9 @@
 namespace peachnx::disk {
     enum class EncryptionType : u8 {
         Auto,
-        None = MBEDTLS_CIPHER_NONE,
-        AesXts = MBEDTLS_CIPHER_AES_128_XTS,
-        AesCtr = MBEDTLS_CIPHER_AES_128_CTR,
+        None,
+        AesXts,
+        AesCtr,
         AesCtrEx,
         AesCtrSkipLayerHash,
         AesCtrExSkipLayerHash
@@ -106,7 +106,7 @@ namespace peachnx::disk {
     class NcaFilesystemInfo {
     public:
         NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, u32 index);
-        VirtFilePtr MountEncryptedFile(NCA& nca);
+        VirtFilePtr MountEncryptedFile(const std::array<u8, 32>& value, NCA& nca);
         std::string GetFileName() const;
 
         bool isPartition{};

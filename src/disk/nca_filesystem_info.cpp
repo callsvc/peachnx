@@ -2,9 +2,11 @@
 
 #include <boost/endian/conversion.hpp>
 
-#include <disk/nca.h>
 #include <disk/encrypted_ranged_file.h>
+#include <disk/nca.h>
 #include <disk/nca_filesystem_info.h>
+
+#include <crypto/checksum.h>
 
 namespace peachnx::disk {
     NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, const u32 index) :
@@ -15,41 +17,40 @@ namespace peachnx::disk {
 
         encrypted = header.version != fsHeaderVersion;
     }
-    VirtFilePtr NcaFilesystemInfo::MountEncryptedFile(NCA& nca) {
+    VirtFilePtr NcaFilesystemInfo::MountEncryptedFile(const std::array<u8, 32>& value, NCA& nca) {
         nca.cipher->DecryptXts<NsaFsHeader>(header, 2 + section, 0x200);
 
-        isPartition = header.type == NsaFsHeader::PartitionFs;
-        const auto mbedType = [&] {
-            if (!encrypted)
-                return MBEDTLS_CIPHER_NONE;
-            if (header.encryptionType != EncryptionType::AesXts && header.encryptionType != EncryptionType::AesCtr) {
-                throw std::runtime_error("Unsupported encryption type for the current content");
-            }
-            return static_cast<mbedtls_cipher_type_t>(header.encryptionType);
-        }();
+        crypto::Checksum expected(value);
+        assert(expected.MatchWith(header));
 
-        if (mbedType != MBEDTLS_CIPHER_NONE)
+        isPartition = header.type == NsaFsHeader::PartitionFs;
+        if (header.encryptionType != EncryptionType::None)
             assert(encrypted);
 
         auto containedBacking = [&] -> VirtFilePtr {
             auto secure{header.nonce};
             boost::endian::endian_reverse_inplace(secure);
-            EncryptContext encrypted(mbedType, nca.ReadExternalKey(header.encryptionType));
 
             if (header.type == NsaFsHeader::PartitionFs) {
                 cfs.offset += header.sha256Data.layers.front().size;
                 cfs.size -= header.sha256Data.layers.front().size;
             }
 
+            EncryptContext encrypted(MBEDTLS_CIPHER_NONE, nca.ReadExternalKey(header.encryptionType));
+            auto CreateEncryptedStorage = [&] (const mbedtls_cipher_type_t type) {
+                encrypted.type = type;
+                return std::make_shared<EncryptedRangedFile>(parent, encrypted, cfs.GetSector(), cfs.offset, cfs.size, GetFileName());
+            };
+
             switch (header.encryptionType) {
                 case EncryptionType::None:
+                default:
                     return std::make_shared<OffsetFile>(parent, cfs.offset, cfs.size, GetFileName());
                 case EncryptionType::AesCtr:
                     std::memcpy(&encrypted.nonce, &secure, sizeof(u64));
+                    return CreateEncryptedStorage(MBEDTLS_CIPHER_AES_128_CTR);
                 case EncryptionType::AesXts:
-                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, cfs.GetSector(), cfs.offset, cfs.size, GetFileName());
-                default:
-                    return nullptr;
+                    return CreateEncryptedStorage(MBEDTLS_CIPHER_AES_128_XTS);
             }
         }();
 

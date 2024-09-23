@@ -11,6 +11,8 @@ target_sources(pnx_lib PUBLIC
     crypto/keys_types.h
     crypto/aes_storage.cpp
     crypto/aes_storage.h
+    crypto/checksum.cpp
+    crypto/checksum.h
     settings/configuration.cpp
     settings/configuration.h
     settings/options_type.h

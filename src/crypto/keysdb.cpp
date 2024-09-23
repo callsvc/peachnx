@@ -94,7 +94,7 @@ namespace peachnx::crypto {
 
     std::optional<Key128> KeysDb::GetKey(const IndexedKey128Type indexed, const u64 generation, const u64 type) const {
         auto indexedIt{indexedKey128Names.begin()};
-        for (; indexedIt != std::end(indexedKey128Names); ++indexedIt ) {
+        for (; indexedIt != std::end(indexedKey128Names); ++indexedIt) {
             if (indexedIt->first.find(indexedKeys[indexed]) != std::string::npos)
                 break;
         }
