@@ -40,14 +40,13 @@ namespace peachnx::disk {
 
         if (requested > block.size())
             block.resize(requested);
-
         if (backing->Read(block, target) != block.size())
             throw std::runtime_error("Failed to read from backing");
 
         (this->*DecryptFuncImpl)(block, target);
 
         u64 result{};
-        if (emplace) {
+        [[unlikely]] if (emplace) {
             const auto size{blocks * sectorSize + emplace};
             std::memcpy(output.data(), block.data(), size);
             result += size;

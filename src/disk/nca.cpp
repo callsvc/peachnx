@@ -39,7 +39,7 @@ namespace peachnx::disk {
         }
         // Checking if the user-provided keys meet the requirements to proceed
         const auto keyIndex{header.keyIndexType};
-        if (!keys.GetKey(GetGenerationKey(), keyIndex)) {
+        if (!keys.GetKey(crypto::Application, GetGenerationKey(), keyIndex)) {
             throw std::runtime_error("Key area not found");
         }
 
@@ -52,10 +52,10 @@ namespace peachnx::disk {
             NcaFilesystemInfo fsInfo{nca, header.entries[entry], entry};
             const auto backing{fsInfo.MountEncryptedFile(*this)};
 
-            [[maybe_unused]] const auto content{backing->GetBytes(512 - 32)};
-            [[maybe_unused]] const auto unaligned{backing->GetBytes(26)};
-            const u32 magic{backing->Read<u32>()};
-            if (fsInfo.isPartition)
+            const auto unaligned{backing->GetBytes(50)};
+            u32 magic{};
+            std::memcpy(&magic, &unaligned[0], sizeof(magic));
+            if (fsInfo.isPartition && magic)
                 assert(magic == MakeMagic<u32>("PFS0"));
         }
     }
@@ -76,8 +76,6 @@ namespace peachnx::disk {
         std::optional<crypto::Key128> key;
 
         if (crypto::KeyIsEmpty(header.rightsId)) {
-            constexpr std::array taggedKeys{"application", "ocean", "system"};
-
             const auto keyIndex = [&] -> u64 {
                 switch (type) {
                     case EncryptionType::AesCtr:
@@ -87,14 +85,14 @@ namespace peachnx::disk {
                         return {};
                 }
             }();
-            key = keys.GetKey(taggedKeys[header.keyIndexType], GetGenerationKey());
+            key = keys.GetKey(header.keyIndexType, GetGenerationKey());
             result = header.encryptedKeyArea[keyIndex];
         } else {
             if (const auto title{keys.GetTitle(header.rightsId)})
                 result = *title;
 
-            assert(header.keyIndexType == Application);
-            key = keys.GetKey("titlekek_", GetGenerationKey());
+            assert(header.keyIndexType == crypto::Application);
+            key = keys.GetKey(crypto::Titlekek, GetGenerationKey());
         }
         if (!key)
             throw std::runtime_error("Title/Area key missing");

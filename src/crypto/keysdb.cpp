@@ -79,45 +79,33 @@ namespace peachnx::crypto {
         const auto indexedIt{indexedKey128Names.find(keyIndexName)};
 
         if (indexedIt != std::end(indexedKey128Names)) {
-            const auto keyIndex = [&] -> u64 {
-                for (const auto& [index, value] : std::views::enumerate(indexedKeys)) {
-                    if (keyIndexName == value)
-                        return index;
-                }
-                return -1;
-            }();
-            if (keyIndex == -1)
-                return;
             try {
-                const auto index{StringToByteArray<1>(name.substr(keyIndexName.size(), 2))};
+                std::stringstream vs;
+                vs << std::hex << name.substr(keyIndexName.size(), 2);
 
-                const KeyIndexPair pair{index[0], keyIndex};
-                indexedIt->second[pair] = StringToByteArray<16>(value);
+                u32 index{};
+                vs >> index;
+                indexedIt->second[index] = StringToByteArray<16>(value);
             } catch ([[maybe_unused]] std::exception& be) {
                 __builtin_trap();
             }
         }
     }
-    std::optional<Key128> KeysDb::GetKey(const u64 master, const u64 index) const {
-        const KeyIndexPair keyPair{master, index};
-        for (const auto& indexes: std::views::values(indexedKey128Names)) {
-            if (indexes.contains(keyPair))
-                if (!KeyIsEmpty(indexes.at(keyPair)))
-                    return indexes.at(keyPair);
-        }
-        return std::nullopt;
-    }
 
-    std::optional<Key128> KeysDb::GetKey(const std::string_view& kind, const u64 master, const u64 index) const {
-        const KeyIndexPair keyPair{master, index};
+    std::optional<Key128> KeysDb::GetKey(const IndexedKey128Type indexed, const u64 generation, const u64 type) const {
         auto indexedIt{indexedKey128Names.begin()};
         for (; indexedIt != std::end(indexedKey128Names); ++indexedIt ) {
-            if (indexedIt->first.find(kind) != std::string::npos)
+            if (indexedIt->first.find(indexedKeys[indexed]) != std::string::npos)
                 break;
         }
-        if (indexedIt != std::end(indexedKey128Names))
-            if (indexedIt->second.contains(keyPair))
-                return indexedIt->second.at(keyPair);
+
+        if (indexedIt != std::end(indexedKey128Names)) {
+            if (indexed != Titlekek)
+                assert(indexed == type);
+            if (indexedIt->second.contains(generation))
+                if (!KeyIsEmpty(indexedIt->second.at(generation)))
+                    return indexedIt->second.at(generation);
+        }
         return {};
     }
     std::optional<Key128> KeysDb::GetTitle(const Key128& title) const {

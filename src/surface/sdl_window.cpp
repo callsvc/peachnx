@@ -1,15 +1,19 @@
-#include <types.h>
-#include <surface/sdl_impl_gl.h>
+#include <print>
 
+#include <surface/sdl_impl_gl.h>
 namespace peachnx::surface {
+    constexpr auto sdlFlags{SDL_INIT_VIDEO};
     SdlWindow::SdlWindow() {
-        constexpr u32 sdlFlags{SDL_INIT_VIDEO};
         if (!SDL_WasInit(sdlFlags)) {
-            SDL_InitSubSystem(sdlFlags);
+            if (SDL_InitSubSystem(sdlFlags) != 0)
+                std::print("{}\n", SDL_GetError());
         }
     }
     SdlWindow::~SdlWindow() {
+        SDL_QuitSubSystem(sdlFlags);
         SDL_Quit();
+
+        SDL_TLSCleanup();
     }
     void SdlWindow::Show() {
         SDL_ShowWindow(sdlWindow);

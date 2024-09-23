@@ -18,11 +18,7 @@ namespace peachnx::disk {
         Data,
         PublicData
     };
-    enum KeyAreaEncryptionKeyIndex : u8 {
-        Application,
-        Ocean,
-        System
-    };
+
     constexpr auto fsEntriesMaxCount{4};
 #pragma pack(push, 1)
 
@@ -33,7 +29,7 @@ namespace peachnx::disk {
         DistributionType distributionType;
         ContentType contentType;
         u8 keyGeneration0;
-        KeyAreaEncryptionKeyIndex keyIndexType;
+        crypto::IndexedKey128Type keyIndexType;
         u64 size; // Size of this NCA
         u64 programId;
         u32 contentIndex;

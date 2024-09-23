@@ -4,9 +4,9 @@
 namespace peachnx::disk {
     enum class EncryptionType : u8 {
         Auto,
-        None,
-        AesXts,
-        AesCtr,
+        None = MBEDTLS_CIPHER_NONE,
+        AesXts = MBEDTLS_CIPHER_AES_128_XTS,
+        AesCtr = MBEDTLS_CIPHER_AES_128_CTR,
         AesCtrEx,
         AesCtrSkipLayerHash,
         AesCtrExSkipLayerHash
@@ -84,8 +84,10 @@ namespace peachnx::disk {
         union {
             u64 nonce;
 
-            u32 generation;
-            u32 secureValue;
+            struct {
+                u32 generation;
+                u32 secureValue;
+            };
         };
     };
     static_assert(sizeof(NsaFsHeader) == 0x200);

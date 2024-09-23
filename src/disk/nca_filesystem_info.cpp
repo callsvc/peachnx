@@ -9,7 +9,7 @@
 namespace peachnx::disk {
     NcaFilesystemInfo::NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, const u32 index) :
         parent(nca), section(index), entry(fsInfo) {
-        const auto offset{(sizeof(NcaHeader) + sizeof(FsEntry) * index)};
+        const auto offset{(sizeof(NcaHeader) + sizeof(NsaFsHeader) * index)};
         header = nca->Read<NsaFsHeader>(offset);
         cfs = ContentFsInfo(entry);
 
@@ -20,15 +20,12 @@ namespace peachnx::disk {
 
         isPartition = header.type == NsaFsHeader::PartitionFs;
         const auto mbedType = [&] {
-            if (header.encryptionType == EncryptionType::None) {
+            if (!encrypted)
                 return MBEDTLS_CIPHER_NONE;
+            if (header.encryptionType != EncryptionType::AesXts && header.encryptionType != EncryptionType::AesCtr) {
+                throw std::runtime_error("Unsupported encryption type for the current content");
             }
-            if (header.encryptionType == EncryptionType::AesXts)
-                return MBEDTLS_CIPHER_AES_128_XTS;
-            if (header.encryptionType == EncryptionType::AesCtr)
-                return MBEDTLS_CIPHER_AES_128_CTR;
-
-            throw std::runtime_error("Unsupported encryption type for the current content");
+            return static_cast<mbedtls_cipher_type_t>(header.encryptionType);
         }();
 
         if (mbedType != MBEDTLS_CIPHER_NONE)
@@ -39,25 +36,18 @@ namespace peachnx::disk {
             boost::endian::endian_reverse_inplace(secure);
             EncryptContext encrypted(mbedType, nca.ReadExternalKey(header.encryptionType));
 
-            auto offset{cfs.offset},
-                size{cfs.size};
-
             if (header.type == NsaFsHeader::PartitionFs) {
-                assert(!header.hasIntegrity && header.sha256Data.layerCount == 2);
-                // Let's skip the hash table section in this PartitionFs for now
-                assert(header.sha256Data.layers.front().offset == 0);
-                const auto delta{header.sha256Data.layers.front().size};
-                offset += delta;
-                size -= delta;
+                cfs.offset += header.sha256Data.layers.front().size;
+                cfs.size -= header.sha256Data.layers.front().size;
             }
 
             switch (header.encryptionType) {
                 case EncryptionType::None:
-                    return std::make_shared<OffsetFile>(parent, offset, size, GetFileName());
+                    return std::make_shared<OffsetFile>(parent, cfs.offset, cfs.size, GetFileName());
                 case EncryptionType::AesCtr:
-                    std::memcpy(&encrypted.nonce[0], &secure, sizeof(u64));
+                    std::memcpy(&encrypted.nonce, &secure, sizeof(u64));
                 case EncryptionType::AesXts:
-                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, cfs.GetSector(), offset, size, GetFileName());
+                    return std::make_shared<EncryptedRangedFile>(parent, encrypted, cfs.GetSector(), cfs.offset, cfs.size, GetFileName());
                 default:
                     return nullptr;
             }

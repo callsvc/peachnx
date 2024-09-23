@@ -63,7 +63,7 @@ namespace peachnx::surface {
 
         for (const auto& unsupported : requiredExt) {
             static const auto render{reinterpret_cast<const char*>(glGetString(GL_RENDERER))};
-            std::print("Your OpenGL driver, named {}, does not support the required extension {}", render, unsupported);
+            std::print("Your OpenGL driver, named {}, does not support the required extension {}\n", render, unsupported);
         }
 
         return requiredExt.empty();

@@ -35,10 +35,11 @@ namespace peachnx::disk {
 
         decltype(size) blkOffset{};
         do {
-            const u64 readStride{output.size() < 4096 ? output.size() : 4096};
-            const auto targetOffset{readOffset + offset + blkOffset};
+            const auto missing{output.size() - blkOffset};
+            const u64 stride{missing < 4096 ? missing : 4096};
+            const auto effective{readOffset + offset + blkOffset};
 
-            const auto result{pread64(descriptor, &output[blkOffset], readStride, targetOffset)};
+            const auto result{pread64(descriptor, &output[blkOffset], stride, effective)};
             if (result < 0)
                 throw std::runtime_error("Could not read from file");
 

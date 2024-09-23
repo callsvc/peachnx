@@ -8,22 +8,7 @@ namespace peachnx::core {
     class AssetsBacking;
 }
 namespace peachnx::crypto {
-    struct KeyIndexPair {
-        u64 field0;
-        u64 field1;
-
-        auto operator==(const KeyIndexPair& key) const {
-            return field0 == key.field0 && field1 == key.field1;
-        }
-    };
-
-    struct KeyIndexHash {
-        auto operator()(const KeyIndexPair& key) const {
-            return std::hash<u64>()(key.field0) ^ std::hash<u64>()(key.field1);
-        }
-    };
-
-    using IndexKey128 = std::unordered_map<KeyIndexPair, Key128, KeyIndexHash>;
+    using IndexKey128 = std::unordered_map<u64, Key128>;
 
     enum class KeyType {
         Production,
@@ -41,8 +26,7 @@ namespace peachnx::crypto {
         void AddTitleKey(const std::string_view& name, const std::string_view& value);
         void AddProdKey(const std::string_view& name, const std::string_view& value);
 
-        std::optional<Key128> GetKey(u64 master = {}, u64 index = {}) const;
-        std::optional<Key128> GetKey(const std::string_view& kind, u64 master = {}, u64 index = {}) const;
+        std::optional<Key128> GetKey(IndexedKey128Type indexed, u64 generation = {}, u64 type = {}) const;
         std::optional<Key128> GetTitle(const Key128& title) const;
 
         std::optional<Key256> headerKey{};
