@@ -6,7 +6,6 @@
 
 #include <disk/nca.h>
 #include <generic.h>
-
 namespace peachnx::disk {
     constexpr auto sdkMinimumVersion{0x000b0000};
     auto CheckContentArchiveMagic(const u32 magic) {
@@ -60,11 +59,12 @@ namespace peachnx::disk {
             NcaFilesystemInfo fsInfo{content, fsEntry, entry};
             const auto backing{fsInfo.MountEncryptedFile(hashOverHeader, *this)};
 
-            const auto unaligned{backing->GetBytes(50)};
-            u32 magic{};
-            std::memcpy(&magic, &unaligned[0], sizeof(magic));
-            if (fsInfo.isPartition && magic)
-                assert(magic == MakeMagic<u32>("PFS0"));
+            const auto magic{backing->Read<u32>()};
+            if (magic == MakeMagic<u32>("PFS0")) {
+                ReadPartitionFs(backing);
+            } else {
+                ReadRomFs(backing);
+            }
         }
     }
     u64 NCA::GetGenerationKey() const {
@@ -109,6 +109,34 @@ namespace peachnx::disk {
         cipher.Decrypt(result.data(), result.data(), sizeof(result));
         return result;
     }
+
+    void NCA::ReadPartitionFs(const VirtFilePtr& content) {
+        dirs.emplace_back(std::make_shared<PartitionFilesystem>(content, true));
+
+        const auto& files{dirs.back()->GetAllFiles()};
+
+        if (header.contentType == ContentType::Meta) {
+            cnmt = dirs.back();
+            return;
+        }
+        assert(header.contentType == ContentType::Program);
+
+        if (files.contains("main")) {
+            assert(files.contains("main.npdm"));
+            exeFs = dirs.back();
+        }
+        if (files.contains("NintendoLogo.png")) {
+            // Nintendo logo displayed in the top-left of the screen
+            assert(files.contains("StartupMovie.gif"));
+            logo = dirs.back();
+        }
+    }
+    void NCA::ReadRomFs(const VirtFilePtr& content) {
+        files.emplace_back(content);
+        romFs = files.back();
+    }
+
+
     bool NCA::VerifyNcaIntegrity() {
         std::vector<std::string> ncaParts;
         split(ncaParts, nca->GetDiskPath().string(), boost::is_any_of("."));
@@ -127,7 +155,7 @@ namespace peachnx::disk {
         std::array<u8, ncaHashSize> result;
         const auto totalSize{nca->GetSize()};
 
-        for (u64 offsetCount{}; offsetCount < totalSize; ) {
+        for (u64 offsetCount{}; offsetCount < totalSize;) {
             const auto stride{std::min(content.size(), totalSize - offsetCount)};
             if (stride < content.size())
                 content.resize(stride);

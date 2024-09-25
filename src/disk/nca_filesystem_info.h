@@ -31,7 +31,7 @@ namespace peachnx::disk {
         u32 contentHash;
         u32 pad0;
     };
-    struct IntegrityVerification {
+    struct VerificationLevelInformation {
         u64 offset;
         u64 size;
         u32 blockSize; // (in log2)
@@ -44,10 +44,10 @@ namespace peachnx::disk {
         u32 masterHashSize;
 
         u32 levelsCount;
-        std::array<IntegrityVerification, 6> levels;
-        std::array<u8, 0x20> pad0;
+        std::array<VerificationLevelInformation, 6> levels;
+        std::array<u8, 0x20> pad1;
         std::array<u8, 0x20> masterHash;
-        std::array<u8, 0x18> pad1;
+        std::array<u8, 0x18> pad2;
     };
 
     struct HierarchicalSha256Data {
@@ -59,7 +59,7 @@ namespace peachnx::disk {
             u64 size;
         };
         std::array<Region, 5> layers;
-        std::array<u8, 0x80> pad0;
+        std::array<u8, 0x80> pad1;
     };
 
     struct alignas(0x200) FsHeader {
@@ -108,6 +108,7 @@ namespace peachnx::disk {
         NcaFilesystemInfo(const VirtFilePtr& nca, const FsEntry& fsInfo, u32 index);
         VirtFilePtr MountEncryptedFile(const std::array<u8, 32>& value, NCA& nca);
         std::string GetFileName() const;
+        void FixupOffsetAndSize();
 
         bool isPartition{};
     private:

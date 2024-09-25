@@ -20,7 +20,7 @@ namespace peachnx::disk {
     };
 #pragma pack(pop)
 
-    PartitionFilesystem::PartitionFilesystem(const VirtFilePtr& pfs, const bool displayContent) : isHfs(), checked() {
+    PartitionFilesystem::PartitionFilesystem(const VirtFilePtr& pfs, const bool displayContent) {
         header = pfs->Read<PfsHeader>();
 
         if (header.magic == MakeMagic<u32>("HFS0"))
@@ -58,5 +58,14 @@ namespace peachnx::disk {
 
         if (displayContent)
             std::print("{}", outBuffer.str());
+    }
+
+    std::optional<OffsetFilePtr> PartitionFilesystem::OpenFile(const std::string_view& filename) {
+        for (const auto& [name, file] : pfsFiles) {
+            if (name == filename)
+                if (file->GetSize())
+                    return file;
+        }
+        return {};
     }
 }

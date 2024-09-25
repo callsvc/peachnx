@@ -31,10 +31,7 @@ namespace peachnx::disk {
             auto secure{header.nonce};
             boost::endian::endian_reverse_inplace(secure);
 
-            if (header.type == FsHeader::PartitionFs) {
-                cfs.offset += header.sha256Data.layers.front().size;
-                cfs.size -= header.sha256Data.layers.front().size;
-            }
+            FixupOffsetAndSize();
 
             EncryptContext encrypted(MBEDTLS_CIPHER_NONE, nca.ReadExternalKey(header.encryptionType));
             auto CreateEncryptedStorage = [&] (const mbedtls_cipher_type_t type) {
@@ -73,6 +70,22 @@ namespace peachnx::disk {
         }
 
         return filename;
+    }
+    void NcaFilesystemInfo::FixupOffsetAndSize() {
+        u32 offset{};
+        u32 size{};
+
+        if (header.integrity.magic == MakeMagic<u32>("IVFC")) {
+            assert(header.integrity.levelsCount == 7);
+            offset = header.integrity.levels.back().offset;
+            size = header.integrity.levels.back().size;
+        } else {
+            assert(header.sha256Data.layerCount == 2);
+            offset = header.sha256Data.layers[1].offset;
+            size = header.sha256Data.layers[1].size;
+        }
+        cfs.size = size;
+        cfs.offset += offset;
     }
 
     constexpr auto sectorShift{9};
