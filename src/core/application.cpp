@@ -18,6 +18,8 @@ namespace peachnx::core {
 
         kdb = std::make_shared<crypto::KeysDb>();
         kdb->Initialize(assets);
+
+        gamesList = GamesList(kdb, assets.games);
     }
     Application::~Application() {
         std::print("Process stopped\n");
@@ -30,8 +32,8 @@ namespace peachnx::core {
         const std::string& program, const service::am::AppletParameters& params) {
 
         std::lock_guard lock{processLock};
-        auto mainFile{assets.GetMainFileFromPath(program)};
-        LoadApplication(mainFile, params);
+        const auto mainFile{assets.GetMainFileFromPath(program)};
+        gamesList.AddGame(mainFile, params);
 
         if (IsRunning()) {
             return;
@@ -39,12 +41,4 @@ namespace peachnx::core {
         emuWindow = std::move(window);
         emuWindow->Show();
     }
-
-    void Application::LoadApplication(disk::VirtFilePtr& mainFile, const service::am::AppletParameters& params) {
-        loader::LoaderExtra parameters {
-            params.programId, params.programIndex
-        };
-        appLoader = GetLoader(kdb, mainFile, parameters);
-    }
-
 }

@@ -55,6 +55,10 @@ namespace peachnx::disk {
         crypto::Key128 ReadExternalKey(EncryptionType type) const;
         bool VerifyNcaIntegrity();
 
+        auto& GetDirectories() {
+            return dirs;
+        }
+
         std::optional<crypto::AesStorage> cipher;
     private:
         void ReadPartitionFs(const VirtFilePtr& content);

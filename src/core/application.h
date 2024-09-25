@@ -2,23 +2,29 @@
 
 #include <atomic>
 #include <core/assets_backing.h>
+#include <core/games_list.h>
+
 #include <surface/sdl_impl_gl.h>
 
-#include <loader/loader.h>
-#include <service/am/applet_manager.h>
-#include <kernel/kernel.h>
 #include <crypto/keysdb.h>
+#include <kernel/kernel.h>
+
 namespace peachnx::core {
     class Application {
     public:
         explicit Application(bool useTemp = false);
         ~Application();
-        [[nodiscard]] bool IsRunning() const;
         void MakeSwitchContext(std::unique_ptr<surface::SdlWindow>&& window,
             const std::string& program, const service::am::AppletParameters& params);
+
+        [[nodiscard]] bool IsRunning() const;
+        [[nodiscard]] auto GetCollection() {
+            return gamesList.loaders;
+        }
     private:
-        void LoadApplication(disk::VirtFilePtr& mainFile, const service::am::AppletParameters& params);
         AssetsBacking assets;
+        GamesList gamesList;
+
         kernel::Kernel kernel;
         std::shared_ptr<crypto::KeysDb> kdb;
 

@@ -1,8 +1,9 @@
 #pragma once
 
-#include <disk/virtual_types.h>
-#include <disk/partition_filesystem.h>
 #include <crypto/keysdb.h>
+#include <disk/partition_filesystem.h>
+
+#include <disk/nca.h>
 namespace peachnx::loader {
     class NSP {
     public:
@@ -10,9 +11,11 @@ namespace peachnx::loader {
         explicit NSP(const disk::VirtFilePtr& nsp);
 
         bool IsValidNsp() const;
-        void ReadContent(const boost::unordered_map<std::string, std::shared_ptr<disk::OffsetFile>>& files) const;
-        std::unique_ptr<disk::PartitionFilesystem> pfs;
+        void ReadContent(const boost::unordered_map<std::string, disk::VirtFilePtr>& files);
+
+        std::vector<std::unique_ptr<disk::NCA>> contents;
     private:
+        std::unique_ptr<disk::PartitionFilesystem> pfs;
         std::shared_ptr<crypto::KeysDb> keys;
 
         u64 program;

@@ -22,6 +22,8 @@ target_sources(pnx_lib PUBLIC
     core/application.h
     core/assets_backing.cpp
     core/assets_backing.h
+    core/games_list.cpp
+    core/games_list.h
     loader/loader.cpp
     loader/loader.h
     loader/submission_package.cpp

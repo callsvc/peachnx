@@ -24,13 +24,20 @@ namespace peachnx::loader {
 
         ReadContent(files);
     }
-    void NSP::ReadContent(const boost::unordered_map<std::string, std::shared_ptr<disk::OffsetFile>>& files) const {
+    void NSP::ReadContent(const boost::unordered_map<std::string, disk::VirtFilePtr>& files) {
         for (const auto& [filename, content]: files) {
-            if (!filename.ends_with(".cnmt.nca") && !filename.ends_with(".nca"))
+            if (!filename.ends_with(".cnmt.nca") &&
+                !filename.ends_with(".nca"))
                 continue;
 
-            const auto nca{std::make_unique<disk::NCA>(keys, content)};
+            auto nca{std::make_unique<disk::NCA>(keys, content)};
+#define ENB_CHECK_FOR_INTEGRITY 0
+
+#if ENB_CHECK_FOR_INTEGRITY
             nca->VerifyNcaIntegrity();
+#endif
+
+            contents.emplace_back(std::move(nca));
         }
     }
 

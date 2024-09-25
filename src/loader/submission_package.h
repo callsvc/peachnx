@@ -9,7 +9,12 @@ namespace peachnx::loader {
     public:
         SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, const LoaderExtra& pkgParams);
         static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
+
+        std::vector<u8> GetLogo() override;
+        std::string GetGameTitle() override;
+
     private:
         std::unique_ptr<NSP> nsp;
+        disk::VirtFilePtr file;
     };
 }

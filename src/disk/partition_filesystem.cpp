@@ -60,7 +60,11 @@ namespace peachnx::disk {
             std::print("{}", outBuffer.str());
     }
 
-    std::optional<OffsetFilePtr> PartitionFilesystem::OpenFile(const std::string_view& filename) {
+    bool PartitionFilesystem::ContainsFile(const std::string_view& filename) {
+        const auto& files{GetAllFiles()};
+        return files.contains(std::string(filename));
+    }
+    VirtFilePtr PartitionFilesystem::OpenFile(const std::string_view& filename) {
         for (const auto& [name, file] : pfsFiles) {
             if (name == filename)
                 if (file->GetSize())

@@ -18,9 +18,12 @@ namespace peachnx::loader {
     class Loader {
     public:
         Loader() = default;
+
+        static ApplicationType GetTypeFromFile(disk::VirtFilePtr& probFile);
+        virtual std::vector<u8> GetLogo() = 0;
+        virtual std::string GetGameTitle() = 0;
     protected:
         virtual ~Loader() = default;
-        static ApplicationType GetTypeFromFile(disk::VirtFilePtr& probFile);
     };
 
     std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, LoaderExtra& extra);

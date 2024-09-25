@@ -26,14 +26,16 @@ namespace peachnx::disk {
             assert(header.entryCount <= pfsFiles.size());
             return pfsFiles;
         }
-        std::optional<OffsetFilePtr> OpenFile(const std::string_view& filename);
+
+        bool ContainsFile(const std::string_view& filename);
+        VirtFilePtr OpenFile(const std::string_view& filename);
 
         PfsHeader header;
         bool isHfs{};
         bool checked{};
     private:
         // Note: The Boost unordered_map library version shows a 20% increase in operations per second after version 1.80
-        boost::unordered_map<std::string, OffsetFilePtr> pfsFiles;
+        boost::unordered_map<std::string, VirtFilePtr> pfsFiles;
 
         struct PfsEntry;
         // Use this structure when "isHfs" is true

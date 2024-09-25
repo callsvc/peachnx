@@ -1,8 +1,10 @@
 
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
 #include <loader/submission_package.h>
 namespace peachnx::loader {
     SubmissionPackage::SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, const LoaderExtra& params) :
-        nsp(std::make_unique<NSP>(kdb, main, params.programId, params.programIndex)) {
+        nsp(std::make_unique<NSP>(kdb, main, params.programId, params.programIndex)), file(main) {
     }
     ApplicationType SubmissionPackage::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
         const NSP package(probFile);
@@ -14,5 +16,31 @@ namespace peachnx::loader {
         }
 
         return ApplicationType::Unrecognized;
+    }
+    std::vector<u8> SubmissionPackage::GetLogo() {
+        auto& nspContent{nsp->contents};
+        for (const auto& nca: nspContent) {
+            auto& dirs{nca->GetDirectories()};
+            for (const auto& entry: dirs) {
+                if (!entry->ContainsFile("StartupMovie.gif"))
+                    continue;
+                const auto logoFile{entry->OpenFile("StartupMovie.gif")};
+
+                return logoFile->GetBytes(logoFile->GetSize());
+            }
+        }
+        return {};
+    }
+    std::string SubmissionPackage::GetGameTitle() {
+        const std::string title{file->GetDiskPath().filename()};
+        std::vector<std::string> titleName;
+
+        split(titleName, title, boost::is_any_of(" ["));
+        if (titleName.size() > 2) {
+            titleName.resize(2);
+            return std::format("{} {}", titleName.front(),  titleName.back());
+        }
+
+        return titleName.front();
     }
 }
