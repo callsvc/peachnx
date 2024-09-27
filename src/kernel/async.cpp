@@ -1,8 +1,7 @@
 #include <kernel/async.h>
 
 namespace peachnx::kernel {
-    void Async::TrappedEntryPoint([[maybe_unused]] bcd::transfer_t context) {
-    }
+    void Async::TrappedEntryPoint([[maybe_unused]] bcd::transfer_t context) {}
 
     Async::Async(std::function<void()>&& function) :
         container(std::make_unique<AsyncContext>(defaultStackSize)) {

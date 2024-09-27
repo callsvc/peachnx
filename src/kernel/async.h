@@ -9,13 +9,10 @@ namespace peachnx::kernel {
 
     struct AsyncContext {
         explicit AsyncContext(const u64 stackSize) :
-            stack(stackSize),
-            stackRewind(stackSize) {
+            stack(stackSize), stackRewind(stackSize) {}
 
-        }
         PageVector<u8> stack;
         PageVector<u8> stackRewind;
-
         std::function<void()> entryPoint;
     };
     namespace bcd = boost::context::detail;

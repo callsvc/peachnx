@@ -53,9 +53,15 @@ target_sources(pnx_lib PUBLIC
     surface/sdl_impl_gl.h
     service/am/am_types.h
     service/am/applet_manager.h
+    meta/content_meta.cpp
+    meta/content_meta.h
     kernel/kernel.h
     kernel/async.cpp
     kernel/async.h
+    kernel/kprocess.cpp
+    kernel/kprocess.h
+    os/make_process.cpp
+    os/make_process.h
     virtual_allocator.cpp
     virtual_allocator.h
     container.h

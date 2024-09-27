@@ -4,6 +4,7 @@
 #include <disk/partition_filesystem.h>
 
 #include <disk/nca.h>
+#include <meta/content_meta.h>
 namespace peachnx::loader {
     class NSP {
     public:
@@ -14,6 +15,10 @@ namespace peachnx::loader {
         void ReadContent(const boost::unordered_map<std::string, disk::VirtFilePtr>& files);
 
         std::vector<std::unique_ptr<disk::NCA>> contents;
+        std::vector<meta::ContentMeta> cnmts;
+
+        // Stores all NCAs based on their title ID
+        std::unordered_map<u64, u64> indexedNca;
     private:
         std::unique_ptr<disk::PartitionFilesystem> pfs;
         std::shared_ptr<crypto::KeysDb> keys;

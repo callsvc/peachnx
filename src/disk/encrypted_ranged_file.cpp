@@ -27,33 +27,27 @@ namespace peachnx::disk {
         const auto target{boost::alignment::align_down(readOffset + offset, sectorSize)};
 
         const auto requested{boost::alignment::align_up(output.size(), sectorSize)};
-        const auto blocks{requested / sectorSize};
-
         if (requested == output.size()) {
             if (backing->Read(output, target) != requested)
                 throw std::runtime_error("Failed to read from backing");
-
             (this->*DecryptFuncImpl)(output, target);
             return requested;
         }
-        boost::container::small_vector<u8, ctrSectorSize> block(sectorSize);
+        boost::container::small_vector<u8, ctrSectorSize> buffer(requested);
+        auto result{backing->Read(buffer, target)};
 
-        if (requested > block.size())
-            block.resize(requested);
-        if (backing->Read(block, target) != block.size())
-            throw std::runtime_error("Failed to read from backing");
-
-        (this->*DecryptFuncImpl)(block, target);
-
-        u64 result{};
+        if (result < buffer.size()) {
+            if (!result)
+                throw std::runtime_error("Failed to read from backing");
+            buffer.resize(boost::alignment::align_down(result, sectorSize));
+        }
+        result = output.size();
+        (this->*DecryptFuncImpl)(buffer, target);
         [[unlikely]] if (emplace) {
-            const auto size{blocks * sectorSize + emplace};
-            std::memcpy(output.data(), block.data(), size);
-            result += size;
-            backing->Read(output.subspan(size), offset + size);
+            assert(buffer.size() == output.size() + emplace);
+            std::memcpy(output.data(), &buffer[emplace], output.size());
         } else {
-            std::memcpy(output.data(), block.data(), output.size());
-            result += output.size();
+            std::memcpy(output.data(), buffer.data(), output.size());
         }
         return result;
     }

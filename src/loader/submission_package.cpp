@@ -3,8 +3,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <loader/submission_package.h>
 namespace peachnx::loader {
-    SubmissionPackage::SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, const LoaderExtra& params) :
-        nsp(std::make_unique<NSP>(kdb, main, params.programId, params.programIndex)), file(main) {
+    SubmissionPackage::SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, u64 programId, u64 programIndex) :
+        nsp(std::make_unique<NSP>(kdb, main, programId, programIndex)), file(main) {
     }
     ApplicationType SubmissionPackage::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
         const NSP package(probFile);
@@ -22,11 +22,8 @@ namespace peachnx::loader {
         for (const auto& nca: nspContent) {
             auto& dirs{nca->GetDirectories()};
             for (const auto& entry: dirs) {
-                if (!entry->ContainsFile("StartupMovie.gif"))
-                    continue;
-                const auto logoFile{entry->OpenFile("StartupMovie.gif")};
-
-                return logoFile->GetBytes(logoFile->GetSize());
+                if (const auto logoFile{entry->OpenFile("StartupMovie.gif")})
+                    return logoFile->GetBytes(logoFile->GetSize());
             }
         }
         return {};

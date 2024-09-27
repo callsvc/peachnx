@@ -1,9 +1,11 @@
 #include <print>
+#include <utility>
 #include <unistd.h>
 
 #include <core/application.h>
 #include <settings/configuration.h>
 
+#include <os/make_process.h>
 namespace peachnx::core {
     Application::Application(const bool useTemp) {
         std::filesystem::path workDir;
@@ -19,7 +21,7 @@ namespace peachnx::core {
         kdb = std::make_shared<crypto::KeysDb>();
         kdb->Initialize(assets);
 
-        gamesList = GamesList(kdb, assets.games);
+        collection = GamesList(kdb, assets.games);
     }
     Application::~Application() {
         std::print("Process stopped\n");
@@ -28,17 +30,28 @@ namespace peachnx::core {
         return running.load(std::memory_order::relaxed);
     }
 
+    std::vector<std::shared_ptr<loader::Loader>> Application::GetGameList() {
+        std::vector<std::shared_ptr<loader::Loader>> games;
+        for (const auto& [_, loader] : collection.cached) {
+            games.emplace_back(loader);
+        }
+
+        return games;
+    }
+
     void Application::MakeSwitchContext(std::unique_ptr<surface::SdlWindow>&& window,
         const std::string& program, const service::am::AppletParameters& params) {
 
         std::lock_guard lock{processLock};
-        const auto mainFile{assets.GetMainFileFromPath(program)};
-        gamesList.AddGame(mainFile, params);
-
-        if (IsRunning()) {
+        if (IsRunning())
             return;
-        }
-        emuWindow = std::move(window);
-        emuWindow->Show();
+
+        const auto mainFile{assets.GetMainFileFromPath(program)};
+        collection.AddGame(mainFile, params);
+        const auto games{GetGameList()};
+        os::MakeProcess(games.back(), kernel);
+
+        sdlScene = std::move(window);
+        sdlScene->Show();
     }
 }

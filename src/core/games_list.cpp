@@ -3,7 +3,7 @@
 
 namespace peachnx::core {
     GamesList::GamesList(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::Path& dir) : keys(kdb) {
-        gamesList.emplace_back(dir);
+        dirsPack.emplace_back(dir);
         using DirEntry = std::filesystem::directory_entry;
 
         std::function<void(const DirEntry&)> searchForGames = [&](const auto& gameDir) {
@@ -24,11 +24,7 @@ namespace peachnx::core {
         searchForGames(rootDir);
     }
     void GamesList::AddGame(const disk::VirtFilePtr& game, const service::am::AppletParameters& params) {
-        loader::LoaderExtra options {
-            params.programId, params.programIndex
-        };
-
         games.emplace_back(game);
-        loaders.emplace_back(GetLoader(keys, games.back(), options));
+        cached.emplace_back(params, loader::GetLoader(keys, games.back(), params.programId, params.programIndex));
     }
 }

@@ -48,6 +48,7 @@ namespace peachnx::disk {
         }
 
         assert(content->GetSize() == header.size);
+        type = header.contentType;
 
         ReadContent(content);
     }

@@ -18,12 +18,11 @@ namespace peachnx::core {
             const std::string& program, const service::am::AppletParameters& params);
 
         [[nodiscard]] bool IsRunning() const;
-        [[nodiscard]] auto GetCollection() {
-            return gamesList.loaders;
-        }
+        std::vector<std::shared_ptr<loader::Loader>> GetGameList();
+
     private:
         AssetsBacking assets;
-        GamesList gamesList;
+        GamesList collection;
 
         kernel::Kernel kernel;
         std::shared_ptr<crypto::KeysDb> kdb;
@@ -32,6 +31,6 @@ namespace peachnx::core {
         std::atomic<bool> running;
 
         std::shared_ptr<loader::Loader> appLoader;
-        std::unique_ptr<surface::SdlWindow> emuWindow;
+        std::unique_ptr<surface::SdlWindow> sdlScene;
     };
 }

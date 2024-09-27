@@ -60,6 +60,7 @@ namespace peachnx::disk {
         }
 
         std::optional<crypto::AesStorage> cipher;
+        ContentType type;
     private:
         void ReadPartitionFs(const VirtFilePtr& content);
         void ReadRomFs(const VirtFilePtr& content);

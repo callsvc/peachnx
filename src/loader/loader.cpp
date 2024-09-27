@@ -27,7 +27,7 @@ namespace peachnx::loader {
             return *fileType;
         return ApplicationType::Unrecognized;
     }
-    std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, LoaderExtra& extra) {
+    std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, u64 programId, u64 programIndex) {
         const auto type{IdentifyAppType(mainFile)};
         const auto typeByName = [&] {
             const auto& filename{mainFile->GetDiskPath()};
@@ -48,7 +48,7 @@ namespace peachnx::loader {
         auto loader = [&] -> std::shared_ptr<Loader> {
             switch (type) {
                 case ApplicationType::NSP:
-                    return std::make_shared<SubmissionPackage>(kdb, mainFile, extra);
+                    return std::make_shared<SubmissionPackage>(kdb, mainFile, programId, programIndex);
                 default:
                     return nullptr;
             }

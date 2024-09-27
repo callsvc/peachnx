@@ -1,9 +1,21 @@
 #pragma once
 
+#include <format>
 #include <boost/algorithm/hex.hpp>
 
 #include <types.h>
 namespace peachnx {
+    template <typename T>
+    std::string ByteArrayToString(const T& byteArray) {
+        std::string result;
+
+        result.reserve(byteArray.size() * 2);
+        for (const auto byte : byteArray) {
+            result += std::format("{:02x}", byte);
+        }
+        return result;
+    }
+
     template <u64 Size>
     auto StringToByteArray(const std::string_view& desired) {
         namespace bad = boost::algorithm::detail;

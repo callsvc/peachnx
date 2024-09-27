@@ -17,8 +17,8 @@ namespace peachnx {
     void MainWindow::AddGameList() {
         gameGrid = std::make_unique<QGridLayout>();
 
-        auto games{peachnx->GetCollection()};
-        for (const auto& loader: games) {
+        auto games{peachnx->GetGameList()};
+        for (const auto& loader : games) {
             const auto logo{loader->GetLogo()};
             auto label{loader->GetGameTitle()};
 
