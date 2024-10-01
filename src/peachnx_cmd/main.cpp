@@ -40,5 +40,5 @@ i32 main(const i32 argc, char** argv) {
     if (process->IsRunning())
         throw std::runtime_error("We shouldn't be running");
 
-    std::this_thread::sleep_for(std::chrono::seconds(10));
+    std::this_thread::sleep_for(std::chrono::seconds(3));
 }

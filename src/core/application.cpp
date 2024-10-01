@@ -46,8 +46,10 @@ namespace peachnx::core {
         if (IsRunning())
             return;
 
-        const auto mainFile{assets.GetMainFileFromPath(program)};
-        collection.AddGame(mainFile, params);
+        if (!program.empty()) {
+            const auto mainFile{assets.GetMainFileFromPath(program)};
+            collection.AddGame(mainFile, params);
+        }
         const auto games{GetGameList()};
         os::MakeProcess(games.back(), kernel);
 
