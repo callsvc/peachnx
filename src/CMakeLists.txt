@@ -30,6 +30,10 @@ target_sources(pnx_lib PUBLIC
     loader/submission_package.h
     loader/nsp.cpp
     loader/nsp.h
+    loader/nca.cpp
+    loader/nca.h
+    loader/nca_filesystem_info.cpp
+    loader/nca_filesystem_info.h
     disk/virtual_types.h
     disk/virtual_file.cpp
     disk/virtual_file.h
@@ -37,10 +41,6 @@ target_sources(pnx_lib PUBLIC
     disk/regular_file.h
     disk/realfs.cpp
     disk/realfs.h
-    disk/nca.cpp
-    disk/nca.h
-    disk/nca_filesystem_info.cpp
-    disk/nca_filesystem_info.h
     disk/encrypted_ranged_file.cpp
     disk/encrypted_ranged_file.h
     disk/offset_file.cpp

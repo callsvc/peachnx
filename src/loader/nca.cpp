@@ -4,9 +4,9 @@
 #include <boost/algorithm/string.hpp>
 #include <mbedtls/sha256.h>
 
-#include <disk/nca.h>
+#include <loader/nca.h>
 #include <generic.h>
-namespace peachnx::disk {
+namespace peachnx::loader {
     constexpr auto sdkMinimumVersion{0x000b0000};
     auto CheckContentArchiveMagic(const u32 magic) {
         static std::vector<u32> versions;
@@ -22,7 +22,7 @@ namespace peachnx::disk {
     }
 
 
-    NCA::NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const VirtFilePtr& content) : keys(kdb), nca(content) {
+    NCA::NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& content) : keys(kdb), nca(content) {
         if (!content)
             return;
         header = content->Read<NcaHeader>();
@@ -52,7 +52,12 @@ namespace peachnx::disk {
 
         ReadContent(content);
     }
-    void NCA::ReadContent(const VirtFilePtr& content) {
+    ApplicationType NCA::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
+        if ([[maybe_unused]] const auto magic = probFile->Read<u32>())
+            return ApplicationType::NCA;
+        return ApplicationType::Unrecognized;
+    }
+    void NCA::ReadContent(const disk::VirtFilePtr& content) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
             const auto& fsEntry{header.entries[entry]};
             const auto& hashOverHeader{header.fsHeaderHashes[entry]};
@@ -111,8 +116,8 @@ namespace peachnx::disk {
         return result;
     }
 
-    void NCA::ReadPartitionFs(const VirtFilePtr& content) {
-        dirs.emplace_back(std::make_shared<PartitionFilesystem>(content, true));
+    void NCA::ReadPartitionFs(const disk::VirtFilePtr& content) {
+        dirs.emplace_back(std::make_shared<disk::PartitionFilesystem>(content, true));
 
         const auto& files{dirs.back()->GetAllFiles()};
 
@@ -132,7 +137,7 @@ namespace peachnx::disk {
             logo = dirs.back();
         }
     }
-    void NCA::ReadRomFs(const VirtFilePtr& content) {
+    void NCA::ReadRomFs(const disk::VirtFilePtr& content) {
         files.emplace_back(content);
         romFs = files.back();
     }

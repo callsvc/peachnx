@@ -4,9 +4,11 @@
 #include <crypto/keysdb.h>
 #include <crypto/aes_storage.h>
 
-#include <disk/nca_filesystem_info.h>
+#include <loader/loader.h>
 #include <disk/partition_filesystem.h>
-namespace peachnx::disk {
+#include <loader/nca_filesystem_info.h>
+
+namespace peachnx::loader {
     enum DistributionType : u8 {
         Download,
         Gamecard
@@ -48,9 +50,11 @@ namespace peachnx::disk {
     static_assert(sizeof(NcaHeader) == 0x400);
 
 #pragma pack(pop)
-    class NCA {
+    class NCA final : public Loader {
     public:
-        explicit NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const VirtFilePtr& content);
+        explicit NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& content);
+
+        static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
 
         crypto::Key128 ReadExternalKey(EncryptionType type) const;
         bool VerifyNcaIntegrity();
@@ -62,23 +66,23 @@ namespace peachnx::disk {
         std::optional<crypto::AesStorage> cipher;
         ContentType type;
     private:
-        void ReadPartitionFs(const VirtFilePtr& content);
-        void ReadRomFs(const VirtFilePtr& content);
+        void ReadPartitionFs(const disk::VirtFilePtr& content);
+        void ReadRomFs(const disk::VirtFilePtr& content);
 
-        void ReadContent(const VirtFilePtr& content);
+        void ReadContent(const disk::VirtFilePtr& content);
         u64 GetGenerationKey() const;
         u32 GetFsEntriesCount() const;
 
         std::shared_ptr<crypto::KeysDb> keys;
-        VirtFilePtr nca;
+        disk::VirtFilePtr nca;
 
-        std::vector<VirtFilePtr> files;
-        VirtFilePtr romFs;
+        std::vector<disk::VirtFilePtr> files;
+        disk::VirtFilePtr romFs;
 
-        std::vector<std::shared_ptr<PartitionFilesystem>> dirs;
-        std::shared_ptr<PartitionFilesystem> exeFs;
-        std::shared_ptr<PartitionFilesystem> cnmt;
-        std::shared_ptr<PartitionFilesystem> logo;
+        std::vector<std::shared_ptr<disk::PartitionFilesystem>> dirs;
+        std::shared_ptr<disk::PartitionFilesystem> exeFs;
+        std::shared_ptr<disk::PartitionFilesystem> cnmt;
+        std::shared_ptr<disk::PartitionFilesystem> logo;
 
         NcaHeader header;
         u32 version{};

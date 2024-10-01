@@ -3,7 +3,7 @@
 #include <boost/container/small_vector.hpp>
 
 #include <disk/encrypted_ranged_file.h>
-#include <disk/nca.h>
+#include <loader/nca.h>
 
 namespace peachnx::disk {
     constexpr auto ctrSectorSize{0x10};

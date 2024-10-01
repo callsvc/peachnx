@@ -11,13 +11,15 @@ namespace peachnx::loader {
         if (u32 magic{}; probFile->GetSize() > sizeof(magic)) {
             magic = probFile->Read<u32>();
             if (magic == MakeMagic<u32>("PFS0") || magic == MakeMagic<u32>("HFS0"))
-                if (package.IsValidNsp())
+                if (package.IsLoaded())
                     return ApplicationType::NSP;
         }
 
         return ApplicationType::Unrecognized;
     }
     std::vector<u8> SubmissionPackage::GetLogo() {
+        assert(nsp->IsLoaded());
+
         auto& nspContent{nsp->contents};
         for (const auto& nca: nspContent) {
             auto& dirs{nca->GetDirectories()};

@@ -6,19 +6,27 @@
 namespace peachnx::loader {
     enum class ApplicationType {
         Unrecognized,
-        NSP // Nintendo Submission Package, normally downloaded from E-Shop titles, similar to .APK on Android or .APP on iOS
+        NSP, // Nintendo Submission Package, normally downloaded from E-Shop titles, similar to .APK on Android or .APP on iOS
+        NCA
     };
     std::string GetApplicationStringType(ApplicationType type);
 
-    ApplicationType IdentifyAppType(disk::VirtFilePtr& app);
+    ApplicationType IdentifyAppType(const disk::VirtFilePtr& app);
 
     class Loader {
     public:
         Loader() = default;
 
-        static ApplicationType GetTypeFromFile(disk::VirtFilePtr& probFile);
-        virtual std::vector<u8> GetLogo() = 0;
-        virtual std::string GetGameTitle() = 0;
+        static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
+        virtual std::vector<u8> GetLogo() {
+            __builtin_trap();
+        }
+        virtual std::string GetGameTitle() {
+            __builtin_trap();
+        }
+        virtual bool IsLoaded() const {
+            __builtin_trap();
+        }
     protected:
         virtual ~Loader() = default;
     };

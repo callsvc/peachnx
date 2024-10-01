@@ -14,7 +14,7 @@ namespace peachnx::loader {
 
     std::string GetApplicationStringType(ApplicationType type) {
         static std::vector<std::string> appTypes{
-            "NSP"
+            "NSP", "NCA"
         };
         const auto typeIndex{static_cast<u32>(type)};
         if (type == ApplicationType::Unrecognized || typeIndex > appTypes.size())
@@ -24,6 +24,8 @@ namespace peachnx::loader {
 
     ApplicationType IdentifyAppType(disk::VirtFilePtr& app) {
         if (const auto fileType = readAppType<SubmissionPackage>(app))
+            return *fileType;
+        if (const auto fileType = readAppType<NCA>(app))
             return *fileType;
         return ApplicationType::Unrecognized;
     }
@@ -35,6 +37,8 @@ namespace peachnx::loader {
 
             if (extension == ".nsp")
                 return ApplicationType::NSP;
+            if (extension == ".nca")
+                return ApplicationType::NCA;
             return ApplicationType::Unrecognized;
         }();
 
@@ -49,6 +53,8 @@ namespace peachnx::loader {
             switch (type) {
                 case ApplicationType::NSP:
                     return std::make_shared<SubmissionPackage>(kdb, mainFile, programId, programIndex);
+                case ApplicationType::NCA:
+                    return std::make_shared<NCA>(kdb, mainFile);
                 default:
                     return nullptr;
             }

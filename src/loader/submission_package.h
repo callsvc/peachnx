@@ -1,6 +1,5 @@
 #pragma once
 
-#include <loader/loader.h>
 #include <loader/nsp.h>
 
 #include <crypto/keysdb.h>

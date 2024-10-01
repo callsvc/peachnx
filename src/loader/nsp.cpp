@@ -3,10 +3,8 @@
 
 #include <crypto/ticket.h>
 #include <loader/nsp.h>
-#include <disk/nca.h>
 
 #include <generic.h>
-#include <meta/content_meta.h>
 namespace peachnx::loader {
 
     NSP::NSP(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& nsp, const u64 titleId, const u64 programIndex) :
@@ -34,7 +32,7 @@ namespace peachnx::loader {
                 !filename.ends_with(".nca"))
                 continue;
 
-            auto nca{std::make_unique<disk::NCA>(keys, content)};
+            auto nca{std::make_unique<NCA>(keys, content)};
 #define ENB_CHECK_FOR_INTEGRITY 0
 
 #if ENB_CHECK_FOR_INTEGRITY
@@ -71,7 +69,18 @@ namespace peachnx::loader {
     NSP::NSP(const disk::VirtFilePtr& nsp) :
         pfs(std::make_unique<disk::PartitionFilesystem>(nsp)), program(), index() {}
 
-    bool NSP::IsValidNsp() const {
-        return pfs->header.entryCount != 0;
+    ApplicationType NSP::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
+        if (const u32 magic = probFile->Read<u32>()) {
+            if (magic == MakeMagic<u32>("NSP"))
+                return ApplicationType::NSP;
+        }
+        return ApplicationType::Unrecognized;
+    }
+
+    bool NSP::IsLoaded() const {
+        if (!contents.empty()) {
+            return !pfs->GetAllFiles().empty();
+        }
+        return !pfs->GetAllFiles().empty();
     }
 }
