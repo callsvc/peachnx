@@ -1,8 +1,8 @@
-#include <vector>
 #include <print>
 
 #include <loader/loader.h>
 #include <loader/submission_package.h>
+#include <loader/content_archive.h>
 namespace peachnx::loader {
     template<typename T> requires(std::derived_from<T, Loader>)
     std::optional<ApplicationType> readAppType(disk::VirtFilePtr& app) {
@@ -13,9 +13,8 @@ namespace peachnx::loader {
     }
 
     std::string GetApplicationStringType(ApplicationType type) {
-        static std::vector<std::string> appTypes{
-            "NSP", "NCA"
-        };
+        constexpr std::array appTypes{"Submission Package", "N. Content Archive"};
+
         const auto typeIndex{static_cast<u32>(type)};
         if (type == ApplicationType::Unrecognized || typeIndex > appTypes.size())
             return "Unknown";
@@ -25,7 +24,7 @@ namespace peachnx::loader {
     ApplicationType IdentifyAppType(disk::VirtFilePtr& app) {
         if (const auto fileType = readAppType<SubmissionPackage>(app))
             return *fileType;
-        if (const auto fileType = readAppType<NCA>(app))
+        if (const auto fileType = readAppType<ContentArchive>(app))
             return *fileType;
         return ApplicationType::Unrecognized;
     }
@@ -54,7 +53,7 @@ namespace peachnx::loader {
                 case ApplicationType::NSP:
                     return std::make_shared<SubmissionPackage>(kdb, mainFile, programId, programIndex);
                 case ApplicationType::NCA:
-                    return std::make_shared<NCA>(kdb, mainFile);
+                    return std::make_shared<ContentArchive>(kdb, mainFile);
                 default:
                     return nullptr;
             }

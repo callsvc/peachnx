@@ -66,21 +66,21 @@ namespace peachnx::loader {
         }
     }
 
-    NSP::NSP(const disk::VirtFilePtr& nsp) :
-        pfs(std::make_unique<disk::PartitionFilesystem>(nsp)), program(), index() {}
-
-    ApplicationType NSP::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
-        if (const u32 magic = probFile->Read<u32>()) {
-            if (magic == MakeMagic<u32>("NSP"))
-                return ApplicationType::NSP;
-        }
-        return ApplicationType::Unrecognized;
-    }
-
-    bool NSP::IsLoaded() const {
+    bool NSP::CheckIntegrity() const {
         if (!contents.empty()) {
             return !pfs->GetAllFiles().empty();
         }
         return !pfs->GetAllFiles().empty();
     }
+    std::vector<u64> NSP::GetProgramIds() {
+        std::vector<u64> result;
+        result.reserve(indexedNca.size());
+        for (const auto& titleId : std::ranges::views::values(indexedNca)) {
+            result.emplace_back(titleId);
+        }
+        return result;
+    }
+
+    NSP::NSP(const disk::VirtFilePtr& nsp) :
+        pfs(std::make_unique<disk::PartitionFilesystem>(nsp)), program(), index() {}
 }

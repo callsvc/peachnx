@@ -1,8 +1,8 @@
 #include <cassert>
 
-#include <meta/content_meta.h>
-namespace peachnx::meta {
-    ContentMeta::ContentMeta(const disk::VirtFilePtr& cnmt) {
+#include <disk/content_meta.h>
+namespace peachnx::disk {
+    ContentMeta::ContentMeta(const VirtFilePtr& cnmt) {
         header = cnmt->Read<MetaHeader>();
 
         assert(header.contentMetaCount < header.contentCount);
@@ -13,7 +13,7 @@ namespace peachnx::meta {
         if (header.contentMetaCount)
             ReadMeta(cnmt);
     }
-    void ContentMeta::ReadContent(const disk::VirtFilePtr& cnmt) {
+    void ContentMeta::ReadContent(const VirtFilePtr& cnmt) {
         records.resize(header.contentCount);
         for (u32 rec{}; rec < records.size(); rec++) {
             const auto offset{recordsOffset + rec * sizeof(ContentInfo)};
@@ -24,7 +24,7 @@ namespace peachnx::meta {
             records[rec] = cnmt->Read<ContentInfo>(offset);
         }
     }
-    void ContentMeta::ReadMeta(const disk::VirtFilePtr& cnmt) {
+    void ContentMeta::ReadMeta(const VirtFilePtr& cnmt) {
         schemas.resize(header.contentMetaCount);
         u32 rec{};
         for (; rec < schemas.size(); rec++) {

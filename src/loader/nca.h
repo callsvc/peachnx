@@ -4,9 +4,9 @@
 #include <crypto/keysdb.h>
 #include <crypto/aes_storage.h>
 
-#include <loader/loader.h>
 #include <disk/partition_filesystem.h>
-#include <loader/nca_filesystem_info.h>
+#include <loader/loader.h>
+#include <disk/nca_mount.h>
 
 namespace peachnx::loader {
     enum DistributionType : u8 {
@@ -42,7 +42,7 @@ namespace peachnx::loader {
         std::array<u8, 0xe> pad0;
         crypto::Key128 rightsId;
 
-        std::array<FsEntry, fsEntriesMaxCount> entries;
+        std::array<disk::FsEntry, fsEntriesMaxCount> entries;
         std::array<std::array<u8, 32>, fsEntriesMaxCount> fsHeaderHashes; // Array of SHA256 hashes (over each FsHeader)
         std::array<std::array<u8, 0x10>, 4> encryptedKeyArea;
         std::array<u8, 0xc0> pad1;
@@ -50,20 +50,24 @@ namespace peachnx::loader {
     static_assert(sizeof(NcaHeader) == 0x400);
 
 #pragma pack(pop)
-    class NCA final : public Loader {
+    class NCA final : public ComposedLoader {
     public:
         explicit NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& content);
 
-        static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
-
-        crypto::Key128 ReadExternalKey(EncryptionType type) const;
+        crypto::Key128 ReadExternalKey(disk::EncryptionType type) const;
         bool VerifyNcaIntegrity();
 
         auto& GetDirectories() {
             return dirs;
         }
 
+        bool CheckIntegrity() const override;
+
         std::optional<crypto::AesStorage> cipher;
+        std::shared_ptr<disk::PartitionFilesystem> exeFs;
+        std::shared_ptr<disk::PartitionFilesystem> cnmt;
+        std::shared_ptr<disk::PartitionFilesystem> logo;
+
         ContentType type;
     private:
         void ReadPartitionFs(const disk::VirtFilePtr& content);
@@ -80,9 +84,6 @@ namespace peachnx::loader {
         disk::VirtFilePtr romFs;
 
         std::vector<std::shared_ptr<disk::PartitionFilesystem>> dirs;
-        std::shared_ptr<disk::PartitionFilesystem> exeFs;
-        std::shared_ptr<disk::PartitionFilesystem> cnmt;
-        std::shared_ptr<disk::PartitionFilesystem> logo;
 
         NcaHeader header;
         u32 version{};

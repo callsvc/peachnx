@@ -4,26 +4,25 @@
 #include <disk/partition_filesystem.h>
 
 #include <loader/nca.h>
-#include <meta/content_meta.h>
+#include <disk/content_meta.h>
 namespace peachnx::loader {
-    class NSP final : public Loader {
+    class NSP final : public ComposedLoader {
     public:
         explicit NSP(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& nsp, u64 titleId, u64 programIndex);
         explicit NSP(const disk::VirtFilePtr& nsp);
 
-        static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
-
         void ReadContent(const boost::unordered_map<std::string, disk::VirtFilePtr>& files);
+        bool CheckIntegrity() const override;
+        std::vector<u64> GetProgramIds();
 
         std::vector<std::unique_ptr<NCA>> contents;
-        std::vector<meta::ContentMeta> cnmts;
+        std::vector<disk::ContentMeta> cnmts;
 
         // Stores all NCAs based on their title ID
         std::unordered_map<u64, u64> indexedNca;
 
-        bool IsLoaded() const override;
-    private:
         std::unique_ptr<disk::PartitionFilesystem> pfs;
+    private:
         std::shared_ptr<crypto::KeysDb> keys;
 
         u64 program;

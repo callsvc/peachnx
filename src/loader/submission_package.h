@@ -12,6 +12,8 @@ namespace peachnx::loader {
         std::vector<u8> GetLogo() override;
         std::string GetGameTitle() override;
 
+        void LoadProcess(const std::shared_ptr<kernel::KProcess>& proc) override;
+
     private:
         std::unique_ptr<NSP> nsp;
         disk::VirtFilePtr file;

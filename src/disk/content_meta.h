@@ -1,7 +1,7 @@
 #pragma once
 
 #include <disk/virtual_types.h>
-namespace peachnx::meta {
+namespace peachnx::disk {
     enum ContentType : u8 {
         Invalid,
         SystemProgram,
@@ -67,17 +67,16 @@ namespace peachnx::meta {
 
     class ContentMeta {
     public:
-        explicit ContentMeta(const disk::VirtFilePtr& cnmt);
+        explicit ContentMeta(const VirtFilePtr& cnmt);
 
-        void ReadContent(const disk::VirtFilePtr& cnmt);
-        void ReadMeta(const disk::VirtFilePtr& cnmt);
-
-        std::vector<ContentInfo> records;
-        std::vector<MetaInfo> schemas;
+        void ReadContent(const VirtFilePtr& cnmt);
+        void ReadMeta(const VirtFilePtr& cnmt);
 
         auto GetTitleId() const {
             return header.titleId;
         }
+        std::vector<ContentInfo> records;
+        std::vector<MetaInfo> schemas;
     private:
         MetaHeader header;
 

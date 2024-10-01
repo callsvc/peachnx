@@ -13,3 +13,4 @@ add_subdirectory(boost)
 add_subdirectory(mbedtls)
 
 target_compile_options(mbedcrypto PRIVATE -Wno-everything)
+target_compile_options(boost_container PRIVATE -Wno-aggressive-loop-optimizations)

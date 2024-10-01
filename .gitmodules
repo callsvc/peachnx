@@ -1,9 +1,9 @@
 [submodule "external/SDL"]
-	path = external/SDL
+	path = externals/SDL
 	url = https://github.com/libsdl-org/SDL.git
 [submodule "external/boost"]
-	path = external/boost
+	path = externals/boost
 	url = https://github.com/callsvc/boost.git
 [submodule "external/mbedtls"]
-	path = external/mbedtls
+	path = externals/mbedtls
 	url = https://github.com/Mbed-TLS/mbedtls.git

@@ -17,7 +17,6 @@ target_sources(pnx_lib PUBLIC
     settings/configuration.h
     settings/options_type.h
     settings/options.h
-    service/process.h
     core/application.cpp
     core/application.h
     core/assets_backing.cpp
@@ -32,8 +31,10 @@ target_sources(pnx_lib PUBLIC
     loader/nsp.h
     loader/nca.cpp
     loader/nca.h
-    loader/nca_filesystem_info.cpp
-    loader/nca_filesystem_info.h
+    loader/content_archive.cpp
+    loader/content_archive.h
+    disk/nca_mount.cpp
+    disk/nca_mount.h
     disk/virtual_types.h
     disk/virtual_file.cpp
     disk/virtual_file.h
@@ -47,21 +48,21 @@ target_sources(pnx_lib PUBLIC
     disk/offset_file.h
     disk/partition_filesystem.cpp
     disk/partition_filesystem.h
+    disk/content_meta.cpp
+    disk/content_meta.h
     surface/sdl_window.cpp
     surface/sdl_window.h
     surface/sdl_impl_gl.cpp
     surface/sdl_impl_gl.h
     service/am/am_types.h
     service/am/applet_manager.h
-    meta/content_meta.cpp
-    meta/content_meta.h
+    service/make_process.cpp
+    service/make_process.h
     kernel/kernel.h
     kernel/async.cpp
     kernel/async.h
     kernel/kprocess.cpp
     kernel/kprocess.h
-    os/make_process.cpp
-    os/make_process.h
     virtual_allocator.cpp
     virtual_allocator.h
     container.h

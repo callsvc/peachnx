@@ -5,7 +5,7 @@
 #include <core/application.h>
 #include <settings/configuration.h>
 
-#include <os/make_process.h>
+#include <service/make_process.h>
 namespace peachnx::core {
     Application::Application(const bool useTemp) {
         std::filesystem::path workDir;
@@ -51,7 +51,10 @@ namespace peachnx::core {
             collection.AddGame(mainFile, params);
         }
         const auto games{GetGameList()};
-        os::MakeProcess(games.back(), kernel);
+        if (games.empty()) {
+            throw std::runtime_error("No games found");
+        }
+        service::MakeProcess(games.back(), kernel);
 
         sdlScene = std::move(window);
         sdlScene->Show();

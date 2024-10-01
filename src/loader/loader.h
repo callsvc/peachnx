@@ -3,6 +3,7 @@
 #include <crypto/keysdb.h>
 #include <disk/virtual_types.h>
 
+#include <kernel/kprocess.h>
 namespace peachnx::loader {
     enum class ApplicationType {
         Unrecognized,
@@ -18,17 +19,18 @@ namespace peachnx::loader {
         Loader() = default;
 
         static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
-        virtual std::vector<u8> GetLogo() {
-            __builtin_trap();
-        }
-        virtual std::string GetGameTitle() {
-            __builtin_trap();
-        }
-        virtual bool IsLoaded() const {
-            __builtin_trap();
-        }
+
+        virtual void LoadProcess(const std::shared_ptr<kernel::KProcess>& proc) = 0;
+        virtual std::vector<u8> GetLogo() = 0;
+        virtual std::string GetGameTitle() = 0;
     protected:
         virtual ~Loader() = default;
+    };
+
+    class ComposedLoader {
+    public:
+        virtual ~ComposedLoader() = default;
+        virtual bool CheckIntegrity() const = 0;
     };
 
     std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, u64 programId, u64 programIndex);

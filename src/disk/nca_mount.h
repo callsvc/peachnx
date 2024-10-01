@@ -2,6 +2,9 @@
 
 #include <disk/virtual_types.h>
 namespace peachnx::loader {
+    class NCA;
+}
+namespace peachnx::disk {
     enum class EncryptionType : u8 {
         Auto,
         None,
@@ -103,14 +106,14 @@ namespace peachnx::loader {
         u64 size;
     };
 
-    class NcaFilesystemInfo {
+    class NcaMount {
     public:
-        explicit NcaFilesystemInfo(const disk::VirtFilePtr& nca, const FsEntry& fsInfo, u32 index);
-        disk::VirtFilePtr MountEncryptedFile(const std::array<u8, 32>& value, NCA& nca);
+        explicit NcaMount(const VirtFilePtr& nca, const FsEntry& fsInfo, u32 index);
+        VirtFilePtr MountEncryptedFile(const std::array<u8, 32>& value, loader::NCA& nca);
         std::string GetFileName() const;
         void FixupOffsetAndSize();
 
-        bool isPartition{};
+        bool IsPartitionFs() const;
     private:
         FsHeader header;
         const disk::VirtFilePtr& parent;

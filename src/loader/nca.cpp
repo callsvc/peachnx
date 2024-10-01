@@ -52,21 +52,17 @@ namespace peachnx::loader {
 
         ReadContent(content);
     }
-    ApplicationType NCA::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
-        if ([[maybe_unused]] const auto magic = probFile->Read<u32>())
-            return ApplicationType::NCA;
-        return ApplicationType::Unrecognized;
-    }
+
     void NCA::ReadContent(const disk::VirtFilePtr& content) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
             const auto& fsEntry{header.entries[entry]};
             const auto& hashOverHeader{header.fsHeaderHashes[entry]};
 
-            NcaFilesystemInfo fsInfo{content, fsEntry, entry};
-            const auto backing{fsInfo.MountEncryptedFile(hashOverHeader, *this)};
+            disk::NcaMount packed(content, fsEntry, entry);
+            const auto backing{packed.MountEncryptedFile(hashOverHeader, *this)};
 
             const auto magic{backing->Read<u32>()};
-            if (magic == MakeMagic<u32>("PFS0")) {
+            if (magic == MakeMagic<u32>("PFS0") && packed.IsPartitionFs()) {
                 ReadPartitionFs(backing);
             } else {
                 ReadRomFs(backing);
@@ -85,16 +81,16 @@ namespace peachnx::loader {
         }
         return {};
     }
-    crypto::Key128 NCA::ReadExternalKey(const EncryptionType type) const {
+    crypto::Key128 NCA::ReadExternalKey(const disk::EncryptionType type) const {
         crypto::Key128 result;
         std::optional<crypto::Key128> key;
 
         if (crypto::KeyIsEmpty(header.rightsId)) {
             const auto keyIndex = [&] -> u64 {
                 switch (type) {
-                    case EncryptionType::AesCtr:
+                    case disk::EncryptionType::AesCtr:
                         return 2;
-                    case EncryptionType::AesXts:
+                    case disk::EncryptionType::AesXts:
                     default:
                         return {};
                 }
@@ -121,11 +117,11 @@ namespace peachnx::loader {
 
         const auto& files{dirs.back()->GetAllFiles()};
 
-        if (header.contentType == ContentType::Meta) {
+        if (type == ContentType::Meta) {
             cnmt = dirs.back();
             return;
         }
-        assert(header.contentType == ContentType::Program);
+        assert(type == ContentType::Program);
 
         if (files.contains("main")) {
             assert(files.contains("main.npdm"));
@@ -176,5 +172,14 @@ namespace peachnx::loader {
 
         verified = std::memcmp(expected.data(), result.data(), sizeof(expected)) == 0;
         return verified;
+    }
+    bool NCA::CheckIntegrity() const {
+        assert(!dirs.empty());
+        if (type == ContentType::Meta)
+            return static_cast<bool>(cnmt);
+        if (type == ContentType::Program)
+            return exeFs || romFs;
+
+        return {};
     }
 }
