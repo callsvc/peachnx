@@ -1,8 +1,8 @@
 #pragma once
 
-#include <disk/regular_file.h>
-#include <disk/offset_file.h>
-namespace peachnx::disk {
+#include <sys_fs/regular_file.h>
+#include <sys_fs/offset_file.h>
+namespace Peachnx::SysFs {
     using VirtFilePtr = std::shared_ptr<VirtualFile>;
     using RegularFilePtr = std::shared_ptr<RegularFile>;
     using OffsetFilePtr = std::shared_ptr<OffsetFile>;

@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 
 #include <settings/configuration.h>
-namespace peachnx::settings {
+namespace Peachnx::Settings {
 
     namespace system_default {
         auto GetInstallDirectory() {

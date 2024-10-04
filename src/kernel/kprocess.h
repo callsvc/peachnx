@@ -1,7 +1,7 @@
 #pragma once
 
 #include <kernel/kernel.h>
-namespace peachnx::kernel {
+namespace Peachnx::Kernel {
     class KProcess : public KBase {
     public:
         explicit KProcess(Kernel& self);

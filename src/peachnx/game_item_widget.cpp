@@ -1,6 +1,6 @@
 #include <peachnx/game_item_widget.h>
 
-namespace peachnx {
+namespace Peachnx {
     GameItemWidget::GameItemWidget(const std::vector<u8>& logo, const QString& label, QWidget* parent) :
         QWidget(parent) {
         byteArray = std::make_unique<QByteArray>(reinterpret_cast<const char*>(logo.data()), logo.size());

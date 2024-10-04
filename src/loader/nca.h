@@ -1,14 +1,14 @@
 #pragma once
 
-#include <disk/virtual_types.h>
+#include <sys_fs//virtual_types.h>
 #include <crypto/keysdb.h>
 #include <crypto/aes_storage.h>
 
-#include <disk/partition_filesystem.h>
+#include <sys_fs//partition_filesystem.h>
 #include <loader/loader.h>
-#include <disk/nca_mount.h>
+#include <loader/nca_mount.h>
 
-namespace peachnx::loader {
+namespace Peachnx::Loader {
     enum DistributionType : u8 {
         Download,
         Gamecard
@@ -32,7 +32,7 @@ namespace peachnx::loader {
         DistributionType distributionType;
         ContentType contentType;
         u8 keyGeneration0;
-        crypto::IndexedKey128Type keyIndexType;
+        Crypto::IndexedKey128Type keyIndexType;
         u64 size; // Size of this NCA
         u64 programId;
         u32 contentIndex;
@@ -40,9 +40,9 @@ namespace peachnx::loader {
         u8 keyGeneration1;
         u8 signatureKeyGeneration;
         std::array<u8, 0xe> pad0;
-        crypto::Key128 rightsId;
+        Crypto::Key128 rightsId;
 
-        std::array<disk::FsEntry, fsEntriesMaxCount> entries;
+        std::array<FsEntry, fsEntriesMaxCount> entries;
         std::array<std::array<u8, 32>, fsEntriesMaxCount> fsHeaderHashes; // Array of SHA256 hashes (over each FsHeader)
         std::array<std::array<u8, 0x10>, 4> encryptedKeyArea;
         std::array<u8, 0xc0> pad1;
@@ -52,38 +52,39 @@ namespace peachnx::loader {
 #pragma pack(pop)
     class NCA final : public ComposedLoader {
     public:
-        explicit NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& content);
+        explicit NCA(const std::shared_ptr<Crypto::KeysDb>& kdb, const SysFs::VirtFilePtr& content);
 
-        crypto::Key128 ReadExternalKey(disk::EncryptionType type) const;
+        Crypto::Key128 ReadExternalKey(EncryptionType type) const;
         bool VerifyNcaIntegrity();
 
         auto& GetDirectories() {
             return dirs;
         }
 
+        u64 GetProgramId() const;
         bool CheckIntegrity() const override;
 
-        std::optional<crypto::AesStorage> cipher;
-        std::shared_ptr<disk::PartitionFilesystem> exeFs;
-        std::shared_ptr<disk::PartitionFilesystem> cnmt;
-        std::shared_ptr<disk::PartitionFilesystem> logo;
+        std::optional<Crypto::AesStorage> cipher;
+        std::shared_ptr<SysFs::PartitionFilesystem> exeFs;
+        std::shared_ptr<SysFs::PartitionFilesystem> cnmt;
+        std::shared_ptr<SysFs::PartitionFilesystem> logo;
 
         ContentType type;
     private:
-        void ReadPartitionFs(const disk::VirtFilePtr& content);
-        void ReadRomFs(const disk::VirtFilePtr& content);
+        void ReadPartitionFs(const SysFs::VirtFilePtr& content);
+        void ReadRomFs(const SysFs::VirtFilePtr& content);
 
-        void ReadContent(const disk::VirtFilePtr& content);
+        void ReadContent(const SysFs::VirtFilePtr& content);
         u64 GetGenerationKey() const;
         u32 GetFsEntriesCount() const;
 
-        std::shared_ptr<crypto::KeysDb> keys;
-        disk::VirtFilePtr nca;
+        std::shared_ptr<Crypto::KeysDb> keys;
+        SysFs::VirtFilePtr nca;
 
-        std::vector<disk::VirtFilePtr> files;
-        disk::VirtFilePtr romFs;
+        std::vector<SysFs::VirtFilePtr> files;
+        SysFs::VirtFilePtr romFs;
 
-        std::vector<std::shared_ptr<disk::PartitionFilesystem>> dirs;
+        std::vector<std::shared_ptr<SysFs::PartitionFilesystem>> dirs;
 
         NcaHeader header;
         u32 version{};

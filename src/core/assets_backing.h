@@ -1,7 +1,7 @@
 #pragma once
 
-#include <disk/realfs.h>
-namespace peachnx::core {
+#include <sys_fs/realfs.h>
+namespace Peachnx::Core {
     // This class will manage all the contents present in the application's root directory
     class AssetsBacking {
     public:
@@ -11,9 +11,9 @@ namespace peachnx::core {
         std::filesystem::path games;
         std::filesystem::path keys;
 
-        std::shared_ptr<disk::RealFs> backing;
+        std::shared_ptr<SysFs::RealFs> backing;
 
-        [[nodiscard]] disk::VirtFilePtr GetMainFileFromPath(const std::string& gamePath) const;
+        [[nodiscard]] SysFs::VirtFilePtr GetMainFileFromPath(const std::string& gamePath) const;
         [[nodiscard]] auto GetTitleKeys() const {
             return keys / "title.keys";
         }

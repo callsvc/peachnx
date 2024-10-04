@@ -1,7 +1,7 @@
 #pragma once
 
 #include <SDL2/SDL.h>
-namespace peachnx::surface {
+namespace Peachnx::Surface {
     class SdlWindow {
     public:
         SdlWindow();

@@ -1,5 +1,5 @@
-#include <disk/virtual_file.h>
-namespace peachnx::disk {
+#include <sys_fs/virtual_file.h>
+namespace Peachnx::SysFs {
     VirtualFile::VirtualFile(const std::filesystem::path& filename, const DiskAccess access, const bool tangible, const u64 virtOff, const u64 virtSize) :
         privilege(access), diskPath(filename) {
 

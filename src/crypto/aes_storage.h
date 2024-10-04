@@ -5,7 +5,7 @@
 
 #include <crypto/keys_types.h>
 #include <mbedtls/cipher.h>
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     class AesStorage {
     public:
         explicit AesStorage(mbedtls_cipher_type_t type, const u8* key, u64 size);

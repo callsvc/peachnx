@@ -1,6 +1,6 @@
 #include <kernel/async.h>
 
-namespace peachnx::kernel {
+namespace Peachnx::Kernel {
     void Async::TrappedEntryPoint([[maybe_unused]] bcd::transfer_t context) {}
 
     Async::Async(std::function<void()>&& function) :

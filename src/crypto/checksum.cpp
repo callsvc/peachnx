@@ -1,7 +1,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <crypto/checksum.h>
 
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
 
     Checksum::Checksum(const std::array<u8, 32>& target) : match(target) {
         mbedtls_sha256_init(&context);

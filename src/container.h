@@ -3,7 +3,7 @@
 #include <vector>
 #include <virtual_allocator.h>
 
-namespace peachnx {
+namespace Peachnx {
     template <typename T>
     struct MappableAllocator {
         MappableAllocator() = default;

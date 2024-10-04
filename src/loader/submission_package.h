@@ -3,19 +3,19 @@
 #include <loader/nsp.h>
 
 #include <crypto/keysdb.h>
-namespace peachnx::loader {
+namespace Peachnx::Loader {
     class SubmissionPackage final : public Loader {
     public:
-        SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, u64 programId, u64 programIndex);
-        static ApplicationType GetTypeFromFile(const disk::VirtFilePtr& probFile);
+        SubmissionPackage(std::shared_ptr<Crypto::KeysDb>& kdb, SysFs::VirtFilePtr& main, u64 programId, u64 programIndex);
+        static ApplicationType GetTypeFromFile(const SysFs::VirtFilePtr& probFile);
 
         std::vector<u8> GetLogo() override;
         std::string GetGameTitle() override;
 
-        void LoadProcess(const std::shared_ptr<kernel::KProcess>& proc) override;
+        void LoadProcess(const std::shared_ptr<Kernel::KProcess>& proc) override;
 
     private:
         std::unique_ptr<NSP> nsp;
-        disk::VirtFilePtr file;
+        SysFs::VirtFilePtr file;
     };
 }

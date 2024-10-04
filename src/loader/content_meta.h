@@ -1,8 +1,8 @@
 #pragma once
 
-#include <disk/virtual_types.h>
-namespace peachnx::disk {
-    enum ContentType : u8 {
+#include <sys_fs/virtual_types.h>
+namespace Peachnx::Loader {
+    enum class ContentMetaType : u8 {
         Invalid,
         SystemProgram,
         SystemData,
@@ -36,7 +36,7 @@ namespace peachnx::disk {
     struct MetaHeader {
         u64 titleId;
         u32 version;
-        ContentType metaType;
+        ContentMetaType metaType;
         u8 reserved0; // ContentMetaPlatform (NX == 0) Always 0 in version 17.0.0 or higher
         u16 extendedHeaderSize;
         u16 contentCount;
@@ -59,7 +59,7 @@ namespace peachnx::disk {
     struct MetaInfo {
         u8 id;
         u32 version;
-        ContentType type;
+        ContentMetaType type;
         MetaAttributes attributes;
         u16 reserved;
     };
@@ -67,10 +67,10 @@ namespace peachnx::disk {
 
     class ContentMeta {
     public:
-        explicit ContentMeta(const VirtFilePtr& cnmt);
+        explicit ContentMeta(const SysFs::VirtFilePtr& cnmt);
 
-        void ReadContent(const VirtFilePtr& cnmt);
-        void ReadMeta(const VirtFilePtr& cnmt);
+        void ReadContent(const SysFs::VirtFilePtr& cnmt);
+        void ReadMeta(const SysFs::VirtFilePtr& cnmt);
 
         auto GetTitleId() const {
             return header.titleId;

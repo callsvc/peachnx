@@ -1,8 +1,8 @@
 #include <core/games_list.h>
 #include <functional>
 
-namespace peachnx::core {
-    GamesList::GamesList(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::Path& dir) : keys(kdb) {
+namespace Peachnx::Core {
+    GamesList::GamesList(const std::shared_ptr<Crypto::KeysDb>& kdb, const SysFs::Path& dir) : keys(kdb) {
         dirsPack.emplace_back(dir);
         using DirEntry = std::filesystem::directory_entry;
 
@@ -15,16 +15,16 @@ namespace peachnx::core {
                 if (entry.is_directory()) {
                     searchForGames(entry);
                 }
-                service::am::AppletParameters defaultParams{};
-                AddGame(std::make_shared<disk::RegularFile>(entry.path()), defaultParams);
+                Service::AM::AppletParameters defaultParams{};
+                AddGame(std::make_shared<SysFs::RegularFile>(entry.path()), defaultParams);
             }
         };
 
         const DirEntry rootDir{dir};
         searchForGames(rootDir);
     }
-    void GamesList::AddGame(const disk::VirtFilePtr& game, const service::am::AppletParameters& params) {
+    void GamesList::AddGame(const SysFs::VirtFilePtr& game, const Service::AM::AppletParameters& params) {
         games.emplace_back(game);
-        cached.emplace_back(params, loader::GetLoader(keys, games.back(), params.programId, params.programIndex));
+        cached.emplace_back(params, Loader::GetLoader(keys, games.back(), params.programId, params.programIndex));
     }
 }

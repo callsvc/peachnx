@@ -2,7 +2,7 @@
 #include <string>
 
 #include <settings/options_type.h>
-namespace peachnx::settings {
+namespace Peachnx::Settings {
 
     class MetaOption {
     public:

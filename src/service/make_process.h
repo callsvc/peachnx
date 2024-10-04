@@ -3,9 +3,9 @@
 #include <loader/loader.h>
 #include <kernel/kernel.h>
 
-namespace peachnx::service {
+namespace Peachnx::Service {
     class MakeProcess {
         public:
-            MakeProcess(const std::shared_ptr<loader::Loader>& loadable, kernel::Kernel& kernel);
+            MakeProcess(const std::shared_ptr<Loader::Loader>& loadable, Kernel::Kernel& kernel);
     };
 }

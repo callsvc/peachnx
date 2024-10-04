@@ -1,29 +1,30 @@
 #pragma once
 
 #include <crypto/keysdb.h>
-#include <disk/partition_filesystem.h>
+#include <sys_fs/partition_filesystem.h>
 
 #include <loader/nca.h>
-#include <disk/content_meta.h>
-namespace peachnx::loader {
+#include <loader/content_meta.h>
+namespace Peachnx::Loader {
+    struct MetaNca {
+        ContentType type;
+    };
     class NSP final : public ComposedLoader {
     public:
-        explicit NSP(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& nsp, u64 titleId, u64 programIndex);
-        explicit NSP(const disk::VirtFilePtr& nsp);
+        explicit NSP(const std::shared_ptr<Crypto::KeysDb>& kdb, const SysFs::VirtFilePtr& nsp, u64 titleId, u64 programIndex);
+        explicit NSP(const SysFs::VirtFilePtr& nsp);
 
-        void ReadContent(const boost::unordered_map<std::string, disk::VirtFilePtr>& files);
+        void ReadContent(const boost::unordered_map<std::string, SysFs::VirtFilePtr>& files);
         bool CheckIntegrity() const override;
         std::vector<u64> GetProgramIds();
 
-        std::vector<std::unique_ptr<NCA>> contents;
-        std::vector<disk::ContentMeta> cnmts;
+        std::unordered_map<u64, std::unique_ptr<NCA>> contents;
+        std::vector<ContentMeta> cnmts;
 
         // Stores all NCAs based on their title ID
-        std::unordered_map<u64, u64> indexedNca;
-
-        std::unique_ptr<disk::PartitionFilesystem> pfs;
+        std::unique_ptr<SysFs::PartitionFilesystem> pfs;
     private:
-        std::shared_ptr<crypto::KeysDb> keys;
+        std::shared_ptr<Crypto::KeysDb> keys;
 
         u64 program;
         u64 index;

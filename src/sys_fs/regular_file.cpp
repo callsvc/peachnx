@@ -2,8 +2,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
-#include <disk/regular_file.h>
-namespace peachnx::disk {
+#include <sys_fs/regular_file.h>
+namespace Peachnx::SysFs {
     auto mkAccessFlags = [] (const DiskAccess access) -> i32 {
         if (access == DiskAccess::Rw)
             return O_RDWR;

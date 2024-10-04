@@ -1,7 +1,7 @@
 #pragma once
 
 #include <types.h>
-namespace peachnx::settings {
+namespace Peachnx::Settings {
     enum class OptionType : u32 {
         None,
         String,

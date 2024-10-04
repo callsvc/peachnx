@@ -3,11 +3,11 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <loader/submission_package.h>
-namespace peachnx::loader {
-    SubmissionPackage::SubmissionPackage(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main, u64 programId, u64 programIndex) :
+namespace Peachnx::Loader {
+    SubmissionPackage::SubmissionPackage(std::shared_ptr<Crypto::KeysDb>& kdb, SysFs::VirtFilePtr& main, u64 programId, u64 programIndex) :
         nsp(std::make_unique<NSP>(kdb, main, programId, programIndex)), file(main) {
     }
-    ApplicationType SubmissionPackage::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
+    ApplicationType SubmissionPackage::GetTypeFromFile(const SysFs::VirtFilePtr& probFile) {
         const NSP package(probFile);
         if (u32 magic{}; probFile->GetSize() > sizeof(magic)) {
             magic = probFile->Read<u32>();
@@ -22,7 +22,7 @@ namespace peachnx::loader {
         assert(nsp->CheckIntegrity());
 
         auto& nspContent{nsp->contents};
-        for (const auto& nca: nspContent) {
+        for (const auto& [index, nca]: nspContent) {
             auto& dirs{nca->GetDirectories()};
             for (const auto& entry: dirs) {
                 if (const auto logoFile{entry->OpenFile("StartupMovie.gif")})
@@ -43,17 +43,15 @@ namespace peachnx::loader {
 
         return titleName.front();
     }
-    void SubmissionPackage::LoadProcess(const std::shared_ptr<kernel::KProcess>& proc) {
-        // Let's drop all SSL certificates
+    void SubmissionPackage::LoadProcess(const std::shared_ptr<Kernel::KProcess>& proc) {
         auto programIds{nsp->GetProgramIds()};
 
-        u64 target{};
-        for (const auto& title : programIds) {
-            if (title & 0x800 == 0)
-                target = title;
-        }
-        if (nsp->indexedNca.contains(target)) {
-            [[maybe_unused]] auto& programNca{nsp->contents[nsp->indexedNca[target]]};
+        // Let's load the first program in the list
+        const auto targets{std::ranges::find_if(programIds, [&](const u64 program) { return !(program & 0x800); })};
+        if (targets == programIds.end())
+            return;
+        if (nsp->contents.contains(*targets)) {
+            [[maybe_unused]] auto& programNca{nsp->contents[*targets]};
         }
     }
 }

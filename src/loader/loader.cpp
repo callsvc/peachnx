@@ -3,9 +3,9 @@
 #include <loader/loader.h>
 #include <loader/submission_package.h>
 #include <loader/content_archive.h>
-namespace peachnx::loader {
+namespace Peachnx::Loader {
     template<typename T> requires(std::derived_from<T, Loader>)
-    std::optional<ApplicationType> readAppType(disk::VirtFilePtr& app) {
+    std::optional<ApplicationType> readAppType(SysFs::VirtFilePtr& app) {
         auto type{T::GetTypeFromFile(app)};
         if (type != ApplicationType::Unrecognized)
             return type;
@@ -21,14 +21,14 @@ namespace peachnx::loader {
         return appTypes[typeIndex - 1];
     }
 
-    ApplicationType IdentifyAppType(disk::VirtFilePtr& app) {
+    ApplicationType IdentifyAppType(SysFs::VirtFilePtr& app) {
         if (const auto fileType = readAppType<SubmissionPackage>(app))
             return *fileType;
         if (const auto fileType = readAppType<ContentArchive>(app))
             return *fileType;
         return ApplicationType::Unrecognized;
     }
-    std::shared_ptr<Loader> GetLoader(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& mainFile, u64 programId, u64 programIndex) {
+    std::shared_ptr<Loader> GetLoader(std::shared_ptr<Crypto::KeysDb>& kdb, SysFs::VirtFilePtr& mainFile, u64 programId, u64 programIndex) {
         const auto type{IdentifyAppType(mainFile)};
         const auto typeByName = [&] {
             const auto& filename{mainFile->GetDiskPath()};

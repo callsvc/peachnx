@@ -3,7 +3,7 @@
 #include <vector>
 
 #include <types.h>
-namespace peachnx::disk {
+namespace Peachnx::SysFs {
     enum class DiskAccess {
         Read,
         Write,

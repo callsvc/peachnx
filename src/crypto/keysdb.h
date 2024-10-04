@@ -4,10 +4,10 @@
 #include <unordered_map>
 
 #include <crypto/ticket.h>
-namespace peachnx::core {
+namespace Peachnx::Core {
     class AssetsBacking;
 }
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     using IndexKey128 = std::unordered_map<u64, Key128>;
 
     enum class KeyType {
@@ -20,7 +20,7 @@ namespace peachnx::crypto {
         KeysDb(const KeysDb&) = delete;
 
         KeysDb();
-        void Initialize(const core::AssetsBacking& assets);
+        void Initialize(const Core::AssetsBacking& assets);
         void AddTicket(const Ticket& ticket);
         void AddTitleKey(Key128 key, Key128 value);
         void AddTitleKey(const std::string_view& name, const std::string_view& value);
@@ -31,7 +31,7 @@ namespace peachnx::crypto {
 
         std::optional<Key256> headerKey{};
     private:
-        void ParserKeyFile(const disk::VirtFilePtr& keyFile, KeyType type);
+        void ParserKeyFile(const SysFs::VirtFilePtr& keyFile, KeyType type);
         std::unordered_map<std::string_view, std::optional<Key256>> keys256Id{};
         std::unordered_map<std::string, Key128> productionKeys{};
 

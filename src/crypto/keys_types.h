@@ -3,7 +3,7 @@
 #include <array>
 #include <cstring>
 #include <types.h>
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     // https://github.com/Thealexbarney/LibHac/blob/master/KEYS.md
     using Key128 = std::array<u8, 16>;
     using Key256 = std::array<u8, 32>;

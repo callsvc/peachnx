@@ -6,7 +6,7 @@
 #include <generic.h>
 #include <core/assets_backing.h>
 #include <crypto/keysdb.h>
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     static constexpr std::array keys {
         "header_key", "sd_card_save_key_source", "sd_card_nca_key_source", "sd_card_nca_key_source", "header_key_source", "sd_card_save_key", "sd_card_nca_key"
     };
@@ -22,13 +22,13 @@ namespace peachnx::crypto {
             indexedKey128Names.emplace(indexed, IndexKey128{});
         }
     }
-    void KeysDb::Initialize(const core::AssetsBacking& assets) {
+    void KeysDb::Initialize(const Core::AssetsBacking& assets) {
         const auto prod{assets.GetProdKey()};
         const auto title{assets.GetTitleKeys()};
         if (exists(prod))
-            ParserKeyFile(std::make_shared<disk::RegularFile>(prod), KeyType::Production);
+            ParserKeyFile(std::make_shared<SysFs::RegularFile>(prod), KeyType::Production);
         if (exists(title))
-            ParserKeyFile(std::make_shared<disk::RegularFile>(title), KeyType::Title);
+            ParserKeyFile(std::make_shared<SysFs::RegularFile>(title), KeyType::Title);
 
         if (titleKeys.empty()) {
             throw std::runtime_error("Empty keys file");
@@ -101,7 +101,7 @@ namespace peachnx::crypto {
         return std::nullopt;
     }
 
-    void KeysDb::ParserKeyFile(const disk::VirtFilePtr& keyFile, const KeyType type) {
+    void KeysDb::ParserKeyFile(const SysFs::VirtFilePtr& keyFile, const KeyType type) {
         const auto content{keyFile->GetBytes(keyFile->GetSize())};
         if (content.empty())
             throw std::runtime_error("Could not parse key file");

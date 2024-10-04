@@ -33,23 +33,23 @@ target_sources(pnx_lib PUBLIC
     loader/nca.h
     loader/content_archive.cpp
     loader/content_archive.h
-    disk/nca_mount.cpp
-    disk/nca_mount.h
-    disk/virtual_types.h
-    disk/virtual_file.cpp
-    disk/virtual_file.h
-    disk/regular_file.cpp
-    disk/regular_file.h
-    disk/realfs.cpp
-    disk/realfs.h
-    disk/encrypted_ranged_file.cpp
-    disk/encrypted_ranged_file.h
-    disk/offset_file.cpp
-    disk/offset_file.h
-    disk/partition_filesystem.cpp
-    disk/partition_filesystem.h
-    disk/content_meta.cpp
-    disk/content_meta.h
+    loader/nca_mount.cpp
+    loader/nca_mount.h
+    loader/content_meta.cpp
+    loader/content_meta.h
+    sys_fs/virtual_types.h
+    sys_fs/virtual_file.cpp
+    sys_fs/virtual_file.h
+    sys_fs/regular_file.cpp
+    sys_fs/regular_file.h
+    sys_fs/realfs.cpp
+    sys_fs/realfs.h
+    sys_fs/encrypted_ranged_file.cpp
+    sys_fs/encrypted_ranged_file.h
+    sys_fs/offset_file.cpp
+    sys_fs/offset_file.h
+    sys_fs/partition_filesystem.cpp
+    sys_fs/partition_filesystem.h
     surface/sdl_window.cpp
     surface/sdl_window.h
     surface/sdl_impl_gl.cpp

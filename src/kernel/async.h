@@ -4,7 +4,7 @@
 
 #include <container.h>
 #include <boost/context/detail/fcontext.hpp>
-namespace peachnx::kernel {
+namespace Peachnx::Kernel {
     constexpr auto defaultStackSize{512 * 1024};
 
     struct AsyncContext {

@@ -4,7 +4,7 @@
 #include <boost/algorithm/hex.hpp>
 
 #include <types.h>
-namespace peachnx {
+namespace Peachnx {
     template <typename T>
     std::string ByteArrayToString(const T& byteArray) {
         std::string result;

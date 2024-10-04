@@ -6,7 +6,7 @@
 #include <boost/endian/conversion.hpp>
 
 #include <crypto/aes_storage.h>
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
 
     AesStorage::AesStorage(const mbedtls_cipher_type_t type, const u8* key, const u64 size) {
         mbedtls_cipher_init(&generic);

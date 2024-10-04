@@ -1,7 +1,7 @@
 #include <boost/align/align_up.hpp>
 
 #include <crypto/ticket.h>
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     enum SignatureType : u32 {
         RSA_4096_SHA_1 = 0x010000,
         RSA_2048_SHA_1,
@@ -11,7 +11,7 @@ namespace peachnx::crypto {
         ECDSA_SHA_256,
         HMAC_SHA1_160
     };
-    Ticket::Ticket(const disk::VirtFilePtr& ticket) {
+    Ticket::Ticket(const SysFs::VirtFilePtr& ticket) {
         const auto signature{ticket->Read<SignatureType>()};
         u32 offset{};
         if (signature == HMAC_SHA1_160) {

@@ -1,6 +1,6 @@
 #include <kernel/kprocess.h>
 
-namespace peachnx::kernel {
+namespace Peachnx::Kernel {
     KProcess::KProcess(Kernel& self) : KBase(self, KType::KProcess) {
     }
 }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <surface/sdl_window.h>
-namespace peachnx::surface {
+namespace Peachnx::Surface {
     class SdlImplOpenGl final : public SdlWindow {
     public:
         SdlImplOpenGl();

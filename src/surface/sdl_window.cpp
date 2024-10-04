@@ -1,7 +1,7 @@
 #include <print>
 
 #include <surface/sdl_impl_gl.h>
-namespace peachnx::surface {
+namespace Peachnx::Surface {
     constexpr auto sdlFlags{SDL_INIT_VIDEO};
     SdlWindow::SdlWindow() {
         if (!SDL_WasInit(sdlFlags)) {

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <disk/virtual_file.h>
-namespace peachnx::disk {
+#include <sys_fs/virtual_file.h>
+namespace Peachnx::SysFs {
     class RegularFile final : public VirtualFile {
     public:
         explicit RegularFile(const std::filesystem::path& filename, DiskAccess access = DiskAccess::Read);

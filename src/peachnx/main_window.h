@@ -4,7 +4,7 @@
 
 #include <core/application.h>
 #include <peachnx/game_item_widget.h>
-namespace peachnx {
+namespace Peachnx {
     class MainWindow final : public QMainWindow {
     public:
         explicit MainWindow(QWidget* parent = nullptr);

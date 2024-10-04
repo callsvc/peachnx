@@ -1,7 +1,7 @@
 #pragma once
 
 #include <service/am/am_types.h>
-namespace peachnx::service::am {
+namespace Peachnx::Service::AM {
     struct AppletParameters {
         ApplicationId programId;
         AppletKind id;

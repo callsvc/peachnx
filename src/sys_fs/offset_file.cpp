@@ -1,6 +1,6 @@
-#include <disk/offset_file.h>
+#include <sys_fs/offset_file.h>
 
-namespace peachnx::disk {
+namespace Peachnx::SysFs {
 
     OffsetFile::OffsetFile(const std::shared_ptr<VirtualFile>& parent, const u64 offset, const u64 size, const std::filesystem::path& filename) :
         VirtualFile(filename, DiskAccess::Read, false, offset, size), backing(parent) {}

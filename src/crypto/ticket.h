@@ -1,12 +1,12 @@
 #pragma once
 
-#include <disk/virtual_types.h>
+#include <sys_fs/virtual_types.h>
 #include <crypto/keys_types.h>
 
-namespace peachnx::crypto {
+namespace Peachnx::Crypto {
     struct Ticket {
         // https://switchbrew.org/wiki/Ticket
-        explicit Ticket(const disk::VirtFilePtr& ticket);
+        explicit Ticket(const SysFs::VirtFilePtr& ticket);
         Ticket() = default;
 
         std::array<u8, 0x40> issuer;

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace peachnx::kernel {
+namespace Peachnx::Kernel {
     class Kernel {
     public:
         Kernel() = default;

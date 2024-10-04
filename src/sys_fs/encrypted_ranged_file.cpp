@@ -2,10 +2,10 @@
 #include <boost/align/align_down.hpp>
 #include <boost/container/small_vector.hpp>
 
-#include <disk/encrypted_ranged_file.h>
+#include <sys_fs//encrypted_ranged_file.h>
 #include <loader/nca.h>
 
-namespace peachnx::disk {
+namespace Peachnx::SysFs {
     constexpr auto ctrSectorSize{0x10};
     constexpr auto xtsSectorSize{0x200};
 

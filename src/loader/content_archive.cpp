@@ -1,10 +1,10 @@
 #include <loader/content_archive.h>
 
-namespace peachnx::loader {
-    ContentArchive::ContentArchive(std::shared_ptr<crypto::KeysDb>& kdb, disk::VirtFilePtr& main) :
+namespace Peachnx::Loader {
+    ContentArchive::ContentArchive(std::shared_ptr<Crypto::KeysDb>& kdb, SysFs::VirtFilePtr& main) :
         nca(std::make_unique<NCA>(kdb, main)), file(main) {}
 
-    ApplicationType ContentArchive::GetTypeFromFile(const disk::VirtFilePtr& probFile) {
+    ApplicationType ContentArchive::GetTypeFromFile(const SysFs::VirtFilePtr& probFile) {
         if ([[maybe_unused]] const auto magic = probFile->Read<u32>())
             return ApplicationType::NCA;
         return ApplicationType::Unrecognized;
@@ -19,7 +19,7 @@ namespace peachnx::loader {
     std::string ContentArchive::GetGameTitle() {
         return file->GetDiskPath();
     }
-    void ContentArchive::LoadProcess(const std::shared_ptr<kernel::KProcess>& proc) {
+    void ContentArchive::LoadProcess(const std::shared_ptr<Kernel::KProcess>& proc) {
 
     }
 }

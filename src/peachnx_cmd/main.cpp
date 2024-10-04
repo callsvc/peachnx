@@ -5,7 +5,7 @@
 
 #include <core/application.h>
 #include <settings/configuration.h>
-using namespace peachnx;
+using namespace Peachnx;
 
 i32 main(const i32 argc, char** argv) {
     namespace bpo = boost::program_options;
@@ -14,14 +14,14 @@ i32 main(const i32 argc, char** argv) {
     peachnx.add_options()
         ("game", bpo::value<std::string>(), "Specify the path of the game to be loaded");
 
-    settings::options = std::make_unique<settings::Options>();
-    const auto process{std::make_unique<core::Application>()};
-    auto emuSurface = [&] -> std::unique_ptr<surface::SdlWindow> {
-        const auto backend{settings::options->surfaceBackend.GetValue()};
-        if (backend == settings::SurfaceBackend::OpenGl) {
-            return std::make_unique<surface::SdlImplOpenGl>();
+    Settings::options = std::make_unique<Settings::Options>();
+    const auto process{std::make_unique<Core::Application>()};
+    auto emuSurface = [&] -> std::unique_ptr<Surface::SdlWindow> {
+        const auto backend{Settings::options->surfaceBackend.GetValue()};
+        if (backend == Settings::SurfaceBackend::OpenGl) {
+            return std::make_unique<Surface::SdlImplOpenGl>();
         }
-        return std::make_unique<surface::SdlImplOpenGl>();
+        return std::make_unique<Surface::SdlImplOpenGl>();
     }();
 
     bpo::variables_map vm;
@@ -32,8 +32,8 @@ i32 main(const i32 argc, char** argv) {
     if (vm.contains("game")) {
         programPath = vm["game"].as<std::string>();
     }
-    constexpr service::am::AppletParameters gameParams{
-        .id = service::am::AppletKind::Application
+    constexpr Service::AM::AppletParameters gameParams{
+        .id = Service::AM::AppletKind::Application
     };
     process->MakeSwitchContext(std::move(emuSurface), programPath, gameParams);
 

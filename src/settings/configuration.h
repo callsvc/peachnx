@@ -2,7 +2,7 @@
 #include <memory>
 
 #include <settings/options.h>
-namespace peachnx::settings {
+namespace Peachnx::Settings {
 
     struct Options {
         Options();

@@ -7,7 +7,7 @@
 #include <QByteArray>
 
 #include <core/application.h>
-namespace peachnx {
+namespace Peachnx {
     class GameItemWidget final : public QWidget {
         Q_OBJECT
     public:

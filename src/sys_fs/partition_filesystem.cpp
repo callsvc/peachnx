@@ -1,8 +1,8 @@
 #include <ranges>
 #include <print>
 
-#include <disk/partition_filesystem.h>
-namespace peachnx::disk {
+#include <sys_fs/partition_filesystem.h>
+namespace Peachnx::SysFs {
 #pragma pack(push, 1)
     struct PartitionFilesystem::PfsEntry {
         u64 offset;

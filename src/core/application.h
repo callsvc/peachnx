@@ -9,28 +9,28 @@
 #include <crypto/keysdb.h>
 #include <kernel/kernel.h>
 
-namespace peachnx::core {
+namespace Peachnx::Core {
     class Application {
     public:
         explicit Application(bool useTemp = false);
         ~Application();
-        void MakeSwitchContext(std::unique_ptr<surface::SdlWindow>&& window,
-            const std::string& program, const service::am::AppletParameters& params);
+        void MakeSwitchContext(std::unique_ptr<Surface::SdlWindow>&& window,
+            const std::string& program, const Service::AM::AppletParameters& params);
 
         [[nodiscard]] bool IsRunning() const;
-        std::vector<std::shared_ptr<loader::Loader>> GetGameList();
+        std::vector<std::shared_ptr<Loader::Loader>> GetGameList();
 
     private:
         AssetsBacking assets;
         GamesList collection;
 
-        kernel::Kernel kernel;
-        std::shared_ptr<crypto::KeysDb> kdb;
+        Kernel::Kernel kernel;
+        std::shared_ptr<Crypto::KeysDb> kdb;
 
         std::mutex processLock;
         std::atomic<bool> running;
 
-        std::shared_ptr<loader::Loader> appLoader;
-        std::unique_ptr<surface::SdlWindow> sdlScene;
+        std::shared_ptr<Loader::Loader> appLoader;
+        std::unique_ptr<Surface::SdlWindow> sdlScene;
     };
 }

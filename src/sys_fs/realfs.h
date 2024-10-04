@@ -2,8 +2,8 @@
 #include <mutex>
 #include <unordered_map>
 
-#include <disk/virtual_types.h>
-namespace peachnx::disk {
+#include <sys_fs/virtual_types.h>
+namespace Peachnx::SysFs {
     class RealFs {
     public:
         RealFs() = default;

@@ -1,7 +1,7 @@
 #pragma once
 #include <boost/unordered_map.hpp>
-#include <disk/virtual_types.h>
-namespace peachnx::disk {
+#include <sys_fs/virtual_types.h>
+namespace Peachnx::SysFs {
     // https://switchbrew.org/wiki/XCI#PartitionFs
     // https://switchbrew.org/wiki/NCA#PFS0
 #pragma pack(push, 1)

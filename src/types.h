@@ -3,7 +3,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace peachnx {
+namespace Peachnx {
     template <typename T>
     concept PcNotVoid = !std::is_same_v<T, void> && !std::is_pointer_v<T>;
 

@@ -2,7 +2,7 @@
 #include <boost/align/align_up.hpp>
 
 #include <virtual_allocator.h>
-namespace peachnx {
+namespace Peachnx {
 
     std::optional<void*> AllocateVirtualMemory(u64 pointerSize) {
         const auto pageSize{sysconf(_SC_PAGESIZE)};

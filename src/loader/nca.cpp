@@ -6,7 +6,7 @@
 
 #include <loader/nca.h>
 #include <generic.h>
-namespace peachnx::loader {
+namespace Peachnx::Loader {
     constexpr auto sdkMinimumVersion{0x000b0000};
     auto CheckContentArchiveMagic(const u32 magic) {
         static std::vector<u32> versions;
@@ -22,7 +22,7 @@ namespace peachnx::loader {
     }
 
 
-    NCA::NCA(const std::shared_ptr<crypto::KeysDb>& kdb, const disk::VirtFilePtr& content) : keys(kdb), nca(content) {
+    NCA::NCA(const std::shared_ptr<Crypto::KeysDb>& kdb, const SysFs::VirtFilePtr& content) : keys(kdb), nca(content) {
         if (!content)
             return;
         header = content->Read<NcaHeader>();
@@ -43,7 +43,7 @@ namespace peachnx::loader {
         }
         // Checking if the user-provided keys meet the requirements to proceed
         const auto keyIndex{header.keyIndexType};
-        if (!keys->GetKey(crypto::Application, GetGenerationKey(), keyIndex)) {
+        if (!keys->GetKey(Crypto::Application, GetGenerationKey(), keyIndex)) {
             throw std::runtime_error("Key area not found");
         }
 
@@ -53,12 +53,12 @@ namespace peachnx::loader {
         ReadContent(content);
     }
 
-    void NCA::ReadContent(const disk::VirtFilePtr& content) {
+    void NCA::ReadContent(const SysFs::VirtFilePtr& content) {
         for (u32 entry{}; entry < GetFsEntriesCount(); entry++) {
             const auto& fsEntry{header.entries[entry]};
             const auto& hashOverHeader{header.fsHeaderHashes[entry]};
 
-            disk::NcaMount packed(content, fsEntry, entry);
+            NcaMount packed(content, fsEntry, entry);
             const auto backing{packed.MountEncryptedFile(hashOverHeader, *this)};
 
             const auto magic{backing->Read<u32>()};
@@ -81,16 +81,16 @@ namespace peachnx::loader {
         }
         return {};
     }
-    crypto::Key128 NCA::ReadExternalKey(const disk::EncryptionType type) const {
-        crypto::Key128 result;
-        std::optional<crypto::Key128> key;
+    Crypto::Key128 NCA::ReadExternalKey(const EncryptionType type) const {
+        Crypto::Key128 result;
+        std::optional<Crypto::Key128> key;
 
-        if (crypto::KeyIsEmpty(header.rightsId)) {
+        if (Crypto::KeyIsEmpty(header.rightsId)) {
             const auto keyIndex = [&] -> u64 {
                 switch (type) {
-                    case disk::EncryptionType::AesCtr:
+                    case EncryptionType::AesCtr:
                         return 2;
-                    case disk::EncryptionType::AesXts:
+                    case EncryptionType::AesXts:
                     default:
                         return {};
                 }
@@ -101,19 +101,19 @@ namespace peachnx::loader {
             if (const auto title{keys->GetTitle(header.rightsId)})
                 result = *title;
 
-            assert(header.keyIndexType == crypto::Application);
-            key = keys->GetKey(crypto::Titlekek, GetGenerationKey());
+            assert(header.keyIndexType == Crypto::Application);
+            key = keys->GetKey(Crypto::Titlekek, GetGenerationKey());
         }
         if (!key)
             throw std::runtime_error("Title/Area key missing");
 
-        crypto::AesStorage cipher(MBEDTLS_CIPHER_AES_128_ECB, key->data(), key->size());
+        Crypto::AesStorage cipher(MBEDTLS_CIPHER_AES_128_ECB, key->data(), key->size());
         cipher.Decrypt(result.data(), result.data(), sizeof(result));
         return result;
     }
 
-    void NCA::ReadPartitionFs(const disk::VirtFilePtr& content) {
-        dirs.emplace_back(std::make_shared<disk::PartitionFilesystem>(content, true));
+    void NCA::ReadPartitionFs(const SysFs::VirtFilePtr& content) {
+        dirs.emplace_back(std::make_shared<SysFs::PartitionFilesystem>(content, true));
 
         const auto& files{dirs.back()->GetAllFiles()};
 
@@ -133,7 +133,7 @@ namespace peachnx::loader {
             logo = dirs.back();
         }
     }
-    void NCA::ReadRomFs(const disk::VirtFilePtr& content) {
+    void NCA::ReadRomFs(const SysFs::VirtFilePtr& content) {
         files.emplace_back(content);
         romFs = files.back();
     }
@@ -172,6 +172,9 @@ namespace peachnx::loader {
 
         verified = std::memcmp(expected.data(), result.data(), sizeof(expected)) == 0;
         return verified;
+    }
+    u64 NCA::GetProgramId() const {
+        return header.programId;
     }
     bool NCA::CheckIntegrity() const {
         assert(!dirs.empty());

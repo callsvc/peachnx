@@ -2,7 +2,7 @@
 #include <QApplication>
 
 #include <peachnx/main_window.h>
-namespace peachnx {
+namespace Peachnx {
     MainWindow::MainWindow(QWidget* parent) :
         QMainWindow(parent),
         peachnx(std::make_unique<core::Application>()) {

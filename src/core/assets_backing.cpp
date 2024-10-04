@@ -1,10 +1,10 @@
 #include <print>
 
 #include <core/assets_backing.h>
-namespace peachnx::core {
+namespace Peachnx::Core {
 
     AssetsBacking::AssetsBacking(const std::filesystem::path& root) :
-        backing(std::make_shared<disk::RealFs>(root)) {
+        backing(std::make_shared<SysFs::RealFs>(root)) {
 
         games = root / "games";
         keys = root / "keys";
@@ -12,15 +12,15 @@ namespace peachnx::core {
         VerifyDirectory(games);
         VerifyDirectory(keys);
     }
-    disk::VirtFilePtr AssetsBacking::GetMainFileFromPath(const std::string& gamePath) const {
-        const disk::Path userPath{gamePath};
+    SysFs::VirtFilePtr AssetsBacking::GetMainFileFromPath(const std::string& gamePath) const {
+        const SysFs::Path userPath{gamePath};
         if (!exists(userPath))
             throw std::runtime_error("Path does not exist");
 
         if (is_directory(userPath)) {
-            return backing->OpenRegular(gamePath + "/main", disk::DiskAccess::Read);
+            return backing->OpenRegular(gamePath + "/main", SysFs::DiskAccess::Read);
         }
-        return backing->OpenRegular(gamePath, disk::DiskAccess::Read);
+        return backing->OpenRegular(gamePath, SysFs::DiskAccess::Read);
     }
 
     void AssetsBacking::VerifyDirectory(const std::filesystem::path& cave) {

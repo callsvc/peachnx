@@ -7,11 +7,11 @@
 
 #include <settings/configuration.h>
 #include <surface/sdl_impl_gl.h>
-namespace peachnx::surface {
+namespace Peachnx::Surface {
     SdlImplOpenGl::SdlImplOpenGl() {
         if (!SDL_WasInit(SDL_INIT_VIDEO))
             return;
-        const auto& options = settings::options;
+        const auto& options = Settings::options;
         constexpr auto windowFlags{SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE};
 
         SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);

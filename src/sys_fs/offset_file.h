@@ -1,7 +1,7 @@
 #pragma once
-#include <disk/virtual_file.h>
+#include <sys_fs/virtual_file.h>
 
-namespace peachnx::disk {
+namespace Peachnx::SysFs {
     class OffsetFile final : public VirtualFile {
     public:
         explicit OffsetFile(const std::shared_ptr<VirtualFile>& parent, u64 offset, u64 size, const std::filesystem::path& filename);

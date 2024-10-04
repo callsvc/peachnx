@@ -1,12 +1,12 @@
 #pragma once
 
-#include <disk/virtual_file.h>
+#include <sys_fs/virtual_file.h>
 #include <crypto/aes_storage.h>
-namespace peachnx::disk {
+namespace Peachnx::SysFs {
     struct EncryptContext {
         mbedtls_cipher_type_t type;
-        crypto::Key128 key;
-        crypto::Key128 nonce;
+        Crypto::Key128 key;
+        Crypto::Key128 nonce;
     };
     class EncryptedRangedFile final : public VirtualFile {
     public:
@@ -19,7 +19,7 @@ namespace peachnx::disk {
         void DecryptFuncCtr(const std::span<u8>& content, u64 offset);
 
         const std::shared_ptr<VirtualFile>& backing;
-        std::optional<crypto::AesStorage> cipher;
+        std::optional<Crypto::AesStorage> cipher;
         EncryptContext context;
 
         u64 sectorSize{};
