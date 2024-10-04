@@ -4,7 +4,7 @@
 
 #include <sys_fs/regular_file.h>
 namespace Peachnx::SysFs {
-    auto mkAccessFlags = [] (const DiskAccess access) -> i32 {
+    auto MakeAccessFlags = [] (const DiskAccess access) -> i32 {
         if (access == DiskAccess::Rw)
             return O_RDWR;
         if (access == DiskAccess::Read)
@@ -15,7 +15,7 @@ namespace Peachnx::SysFs {
     RegularFile::RegularFile(const std::filesystem::path& filename, const DiskAccess access) :
         VirtualFile(filename, access, true) {
 
-        descriptor = open64(filename.c_str(), mkAccessFlags(access));
+        descriptor = open64(filename.c_str(), MakeAccessFlags(access));
         if (descriptor < 3)
             throw std::runtime_error("Could not open file");
     }
@@ -53,7 +53,7 @@ namespace Peachnx::SysFs {
         if (access == privilege)
             throw std::runtime_error("The file access type has already been established");
 
-        if (fcntl(descriptor, F_SETFD, mkAccessFlags(access)))
+        if (fcntl(descriptor, F_SETFD, MakeAccessFlags(access)))
             throw std::runtime_error("Failed to change the file permissions");
 
         privilege = access;

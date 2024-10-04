@@ -2,7 +2,7 @@
 #include <boost/align/align_down.hpp>
 #include <boost/container/small_vector.hpp>
 
-#include <sys_fs//encrypted_ranged_file.h>
+#include <sys_fs/encrypted_ranged_file.h>
 #include <loader/nca.h>
 
 namespace Peachnx::SysFs {

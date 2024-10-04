@@ -5,7 +5,7 @@
 #include <loader/content_archive.h>
 namespace Peachnx::Loader {
     template<typename T> requires(std::derived_from<T, Loader>)
-    std::optional<ApplicationType> readAppType(SysFs::VirtFilePtr& app) {
+    std::optional<ApplicationType> ReadAppType(SysFs::VirtFilePtr& app) {
         auto type{T::GetTypeFromFile(app)};
         if (type != ApplicationType::Unrecognized)
             return type;
@@ -13,7 +13,7 @@ namespace Peachnx::Loader {
     }
 
     std::string GetApplicationStringType(ApplicationType type) {
-        constexpr std::array appTypes{"Submission Package", "N. Content Archive"};
+        constexpr std::array appTypes{"Submission Package", "Content Archive"};
 
         const auto typeIndex{static_cast<u32>(type)};
         if (type == ApplicationType::Unrecognized || typeIndex > appTypes.size())
@@ -22,9 +22,9 @@ namespace Peachnx::Loader {
     }
 
     ApplicationType IdentifyAppType(SysFs::VirtFilePtr& app) {
-        if (const auto fileType = readAppType<SubmissionPackage>(app))
+        if (const auto fileType = ReadAppType<SubmissionPackage>(app))
             return *fileType;
-        if (const auto fileType = readAppType<ContentArchive>(app))
+        if (const auto fileType = ReadAppType<ContentArchive>(app))
             return *fileType;
         return ApplicationType::Unrecognized;
     }

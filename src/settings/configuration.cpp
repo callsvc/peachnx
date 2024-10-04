@@ -4,7 +4,7 @@
 #include <settings/configuration.h>
 namespace Peachnx::Settings {
 
-    namespace system_default {
+    namespace SystemDefault {
         auto GetInstallDirectory() {
             const std::string path{std::filesystem::current_path()};
             return path;
@@ -15,10 +15,10 @@ namespace Peachnx::Settings {
     }
 
     Options::Options() {
-        installedDirectory = Option{"installed-directory", system_default::GetInstallDirectory()};
+        installedDirectory = Option{"installed-directory", SystemDefault::GetInstallDirectory()};
 
-        lastX = Option{"last-x", system_default::GetWindowPos()};
-        lastY = Option{"last-y", system_default::GetWindowPos()};
+        lastX = Option{"last-x", SystemDefault::GetWindowPos()};
+        lastY = Option{"last-y", SystemDefault::GetWindowPos()};
         width = Option{"width", 640};
         height = Option{"height", 640};
 

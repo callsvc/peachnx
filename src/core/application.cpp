@@ -32,6 +32,7 @@ namespace Peachnx::Core {
 
     std::vector<std::shared_ptr<Loader::Loader>> Application::GetGameList() {
         std::vector<std::shared_ptr<Loader::Loader>> games;
+        games.reserve(collection.cached.size());
         for (const auto& [_, loader] : collection.cached) {
             games.emplace_back(loader);
         }

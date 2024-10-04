@@ -1,10 +1,10 @@
 #pragma once
 
-#include <sys_fs//virtual_types.h>
+#include <sys_fs/virtual_types.h>
 #include <crypto/keysdb.h>
 #include <crypto/aes_storage.h>
 
-#include <sys_fs//partition_filesystem.h>
+#include <sys_fs/partition_filesystem.h>
 #include <loader/loader.h>
 #include <loader/nca_mount.h>
 
